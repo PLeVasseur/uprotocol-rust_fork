@@ -13,7 +13,7 @@
 
 use crate::uprotocol::{UEntity};
 
-enum EntityResolution {
+pub enum Entity {
     Incomplete(UEntity),
     MicroUri(UEntity),
     LongUri(UEntity),
@@ -66,12 +66,23 @@ impl EntityBuilder {
         self
     }
 
-    pub fn build(self) -> EntityResolution {
+    pub fn build(self) -> Entity {
         match (self.id_set, self.name_set, self.version_major_set) {
-            (true, true, true) => EntityResolution::Resolved(self.entity),
-            (true, false, true) => EntityResolution::MicroUri(self.entity),
-            (false, true, true) => EntityResolution::LongUri(self.entity),
-            _ => EntityResolution::Incomplete(self.entity),
+            (true, true, true) => Entity::Resolved(self.entity),
+            (true, false, true) => Entity::MicroUri(self.entity),
+            (false, true, true) => Entity::LongUri(self.entity),
+            _ => Entity::Incomplete(self.entity),
+        }
+    }
+}
+
+impl From<Entity> for UEntity {
+    fn from(entity: Entity) -> Self {
+        match entity {
+            Entity::Incomplete(ue) => ue,
+            Entity::MicroUri(ue) => ue,
+            Entity::LongUri(ue) => ue,
+            Entity::Resolved(ue) => ue,
         }
     }
 }

@@ -13,6 +13,9 @@
 
 use crate::uprotocol::{Remote, UAuthority};
 
+pub const REMOTE_ID_MINIMUM_BYTES: usize = 1;
+pub const REMOTE_ID_MAXIMUM_BYTES: usize = 255;
+
 /// Helper functions to deal with `UAuthority::Remote` structure
 impl UAuthority {
     pub fn has_name(&self) -> bool {

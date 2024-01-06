@@ -228,7 +228,7 @@ impl UriSerializer<Vec<u8>> for MicroUriSerializer {
                 version_major: Some(ue_version),
                 ..Default::default()
             }),
-            resource: Some(UResourceBuilder::from_id(u32::from(uresource_id))),
+            resource: Some(UResourceBuilder::from_id(u16::from(uresource_id))),
         })
     }
 }
