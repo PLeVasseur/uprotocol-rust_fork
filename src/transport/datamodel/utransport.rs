@@ -21,7 +21,7 @@ use crate::uprotocol::{UAttributes, UEntity, UMessage, UPayload, UStatus, UUri};
 /// sending `UMessage` using the configured technology. For more information, please refer to
 /// [uProtocol Specification](https://github.com/eclipse-uprotocol/uprotocol-spec/blob/main/up-l1/README.adoc).
 #[async_trait]
-pub trait UTransport {
+pub trait UTransport: Send + Sync {
     /// Authenticates with the underlying transport layer that the `uEntity` passed
     /// matches the transport specific identity. This method requires a resolved `UUri`.
     ///
