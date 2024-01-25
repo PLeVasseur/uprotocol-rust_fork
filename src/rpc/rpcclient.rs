@@ -28,7 +28,7 @@ pub type RpcClientResult = Result<UPayload, RpcMapperError>;
 /// For more details, please refer to the
 /// [RpcClient Specifications](https://github.com/eclipse-uprotocol/uprotocol-spec/blob/main/up-l2/README.adoc).
 #[async_trait]
-pub trait RpcClient: Send + Sync {
+pub trait RpcClient {
     /// Support for RPC method invocation.
     ///
     /// # Arguments

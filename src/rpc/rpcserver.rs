@@ -19,7 +19,7 @@ use crate::uprotocol::{UMessage, UStatus, UUri};
 /// incoming RPC requests from clients.
 /// TODO: Add uProtocol spec in the future
 #[async_trait]
-pub trait RpcServer: Send + Sync {
+pub trait RpcServer {
     /// Register a listener for a particular method URI to be notified when requests
     /// are sent against said method.
     /// Note: Only one listener is allowed to be registered per method URI.
