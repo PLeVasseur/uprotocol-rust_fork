@@ -14,3 +14,11 @@ Cargo.lock
 *.pdb
 
 .vscode/
+
+# Relevant to compiling for Android
+target.tmp/
+android/build/
+Android.bp
+cargo.metadata
+cargo.out
+cargo_embargo.json
