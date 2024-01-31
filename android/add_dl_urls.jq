@@ -1,0 +1,1 @@
+[.[] | . + {"url": ("https://static.crates.io/crates/" + .name + "/" + .name + "-" + .version + ".crate")}]
