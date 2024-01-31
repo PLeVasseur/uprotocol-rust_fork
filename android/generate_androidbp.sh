@@ -12,4 +12,8 @@ mkdir -p $ANDROID_BUILD_DIR
 
 # TODO: Add ability to parse some command line args to trigger only certain parts
 # cargo_embargo autoconfig cargo_embargo.json
-jq -f "${SCRIPT_DIR}/extract_deps.jq" "${SCRIPT_DIR}/../cargo.metadata" > "${ANDROID_BUILD_DIR}/deps.json"
+cargo tree --prefix=none | "${SCRIPT_DIR}/cargo_to_json_deps.sh" > "${ANDROID_BUILD_DIR}/deps.json"
+jq -f "${SCRIPT_DIR}/dedup_deps.jq" "${ANDROID_BUILD_DIR}/deps.json" > "${ANDROID_BUILD_DIR}/deduped_deps.json"
+
+
+# jq -f "${SCRIPT_DIR}/extract_deps.jq" "${SCRIPT_DIR}/../cargo.metadata" > "${ANDROID_BUILD_DIR}/deps.json"
