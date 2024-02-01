@@ -158,9 +158,31 @@ done
 
 echo "Crates that must be built but do not have all dependencies available (see MUST_BUILD_CRATES_NOT_AVAILABLE.txt for details)."
 
+# Crates remaining for first pass:
+# match_cfg-0.1.0
+# mediatype-0.19.17
+# protoc-bin-vendored-linux-aarch_64-3.0.0
+# protoc-bin-vendored-linux-ppcle_64-3.0.0
+# protoc-bin-vendored-linux-x86_32-3.0.0
+# protoc-bin-vendored-linux-x86_64-3.0.0
+# protoc-bin-vendored-macos-x86_64-3.0.0
+# protoc-bin-vendored-win32-3.0.0
+# snafu-derive-0.6.10
+# test-case-core-3.3.1
+
 # Notes on deps completed and moved to external/rust/crates:
+# (Note that this is the order that these will compile in, also, not alphabetical)
+# => android-system-properties
 # => autocfg
 # => cc
 # => doc-comment
-#  ~ had to comment out beginning of lib.rs configuring to be no_std
+#  ~ had to comment out beginning of lib.rs configuring to be no_std, i.e. these lines:
+# // #![cfg_attr(feature = "no_core", feature(no_core))]
+# // #![cfg_attr(feature = "no_core", no_core)]
+# // #![cfg_attr(not(feature = "no_core"), no_std)]
 # => home
+# => iana_time_zone
+#  ~ when compiling for android, depends on android-system-properties, so doing to do that first
+#  ~ had to add a dep on android_system_properites manually to the Android.bp like this:
+#    rustlibs: ["libandroid_system_properties"],
+# linux_raw_sys
