@@ -97,3 +97,70 @@ echo "Crates NOT_AVAILABLE and missing cargo_embargo.json:"
 for crate in "${NOT_AVAILABLE_CARGO_EMBARGO_FAIL[@]}"; do
     echo "$crate"
 done
+
+# Phase 7: For any NOT_AVAILABLE_CARGO_EMBARGO_SUCCESS, we want to catalog the build deps and then search for
+#  if any of those have their deps completely covered by what's available in AVAILABLE_CRATES and put those into
+#  a list called MUST_BUILD_CRATES_AVAILABLE and for those that are not completely covered, put them in a list
+#  called MUST_BUILD_CRATES_NOT_AVAILABLE with which deps are NOT_AVAILABLE
+
+# Assuming paths and previous phases are correctly set up
+# Initialize arrays for the new phase
+MUST_BUILD_CRATES_AVAILABLE=()
+MUST_BUILD_CRATES_NOT_AVAILABLE=()
+
+# Function to check if dependencies are available
+check_deps_available() {
+    local crate_name="$1"
+    local deps_file="$2" # Path to the JSON file with dependencies
+    local all_deps_available=true
+    local unavailable_deps=()
+
+    echo "check_deps_available for crate: ${crate_name}"
+
+    # Read dependencies from the JSON file
+    local deps=$(jq -r '.[] | .name' "$deps_file")
+
+    for dep in $deps; do
+        echo "checking dep: ${dep}"
+        if [ ! -d "$AVAILABLE_CRATES/$dep" ]; then
+            echo "dep unavailable: ${dep}"
+            all_deps_available=false
+            unavailable_deps+=("$dep")
+        fi
+    done
+
+    if $all_deps_available; then
+        echo "all deps available for crate: ${crate_name}"
+        MUST_BUILD_CRATES_AVAILABLE+=("$crate_name")
+    else
+        echo "all deps not available for crate: ${crate_name}"
+        echo "$crate_name: ${unavailable_deps[*]}" >> "${CRATE_BUILD_DIR}/MUST_BUILD_CRATES_NOT_AVAILABLE.txt"
+    fi
+}
+
+# Process each NOT_AVAILABLE_CARGO_EMBARGO_SUCCESS crate
+for crate in "${NOT_AVAILABLE_CARGO_EMBARGO_SUCCESS[@]}"; do
+    # Assume a hypothetical command to generate a JSON file of dependencies for the crate
+    DEPS_JSON="${CRATE_BUILD_DIR}/${crate}_deps.json"
+    DEDUPED_DEPS_JSON="${CRATE_BUILD_DIR}/${crate}_deduped_deps.json"
+    cargo tree --manifest-path "${CRATE_BUILD_DIR}/${crate}/Cargo.toml" --prefix=none | "${SCRIPT_DIR}/cargo_to_json_deps.sh" > "$DEPS_JSON"
+    jq -f "${SCRIPT_DIR}/dedup_deps.jq" "$DEPS_JSON" > "$DEDUPED_DEPS_JSON"
+
+    # Now check if all dependencies for this crate are available
+    check_deps_available "$crate" "$DEDUPED_DEPS_JSON"
+done
+
+# Output the results
+echo "Crates that must be built and have all dependencies available:"
+for crate in "${MUST_BUILD_CRATES_AVAILABLE[@]}"; do
+    echo "$crate"
+done
+
+echo "Crates that must be built but do not have all dependencies available (see MUST_BUILD_CRATES_NOT_AVAILABLE.txt for details)."
+
+# Notes on deps completed and moved to external/rust/crates:
+# => autocfg
+# => cc
+# => doc-comment
+#  ~ had to comment out beginning of lib.rs configuring to be no_std
+# => home
