@@ -1,0 +1,12 @@
+diff -ruN snafu-derive_original/Android.bp snafu-derive/Android.bp
+--- snafu-derive_original/Android.bp	2024-02-02 17:40:18.538535058 -0500
++++ snafu-derive/Android.bp	2024-02-02 17:33:48.649493000 -0500
+@@ -9,7 +9,7 @@
+ cargo_pkg_version: "0.6.10",
+ srcs: ["src/lib.rs"],
+ edition: "2018",
+-rustlibs: ["libproc_macro2", "libquote", "libsyn"],
++rustlibs: ["libproc_macro2", "libquote", "libsyn-v1.0"],
+ product_available: true,
+ vendor_available: true,
+ }

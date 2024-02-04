@@ -1,0 +1,21 @@
+diff -ruN equivalent-1.0.1_original/src/lib.rs equivalent-1.0.1/src/lib.rs
+--- equivalent-1.0.1_original/src/lib.rs	2024-02-02 15:21:11.105865047 -0500
++++ equivalent-1.0.1/src/lib.rs	2024-02-02 15:20:00.238402000 -0500
+@@ -59,10 +59,13 @@
+ //! }
+ //! ```
+ 
+-#![no_std]
+- 
+-use core::borrow::Borrow;
+-use core::cmp::Ordering;
++// #![no_std]
++// 
++// use core::borrow::Borrow;
++// use core::cmp::Ordering;
++
++use std::borrow::Borrow;
++use std::cmp::Ordering;
+ 
+ /// Key equivalence trait.
+ ///

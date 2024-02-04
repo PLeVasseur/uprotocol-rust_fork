@@ -11,14 +11,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-use std::fs::File;
-use std::io::{self, Write};
 use std::env;
 use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
-use reqwest::blocking::Client;
-use std::error::Error;
 
 const UPROTOCOL_BASE_URI: &str = "https://raw.githubusercontent.com/eclipse-uprotocol/uprotocol-core-api/uprotocol-core-api-1.5.5/uprotocol";
 
@@ -88,49 +84,26 @@ fn get_and_build_protos(
     Ok(())
 }
 
+// Retrieves a file from `url` (from GitHub, for instance) and places it in the build directory (`OUT_DIR`) with the name
+// provided by `destination` parameter.
 fn download_and_write_file(
     url: &str,
     dest_path: &PathBuf,
-) -> Result<(), Box<dyn Error>> {
-    // Create a client that respects the http_proxy and https_proxy env variables
-    let client = Client::builder()
-        .build()?;
-
+) -> core::result::Result<(), Box<dyn std::error::Error>> {
     // Send a GET request to the URL
-    let mut response = client.get(url).send()?;
 
-    // Ensure the parent directory exists
-    if let Some(parent_path) = dest_path.parent() {
-        std::fs::create_dir_all(parent_path)?;
+    match ureq::get(url).call() {
+        Err(error) => Err(Box::from(error)),
+        Ok(response) => {
+            if let Some(parent_path) = dest_path.parent() {
+                std::fs::create_dir_all(parent_path)?;
+            }
+            let mut out_file = fs::File::create(dest_path)?;
+
+            // Write the response body directly to the file
+            std::io::copy(&mut response.into_reader(), &mut out_file)
+                .map(|_| ())
+                .map_err(Box::from)
+        }
     }
-
-    let mut out_file = File::create(dest_path)?;
-    // Stream the response body directly to the file
-    io::copy(&mut response.text()?.as_bytes(), &mut out_file)?;
-
-    Ok(())
 }
-
-// // Retrieves a file from `url` (from GitHub, for instance) and places it in the build directory (`OUT_DIR`) with the name
-// // provided by `destination` parameter.
-// fn download_and_write_file(
-//     url: &str,
-//     dest_path: &PathBuf,
-// ) -> core::result::Result<(), Box<dyn std::error::Error>> {
-//     // Send a GET request to the URL
-// 
-//     match ureq::get(url).call() {
-//         Err(error) => Err(Box::from(error)),
-//         Ok(response) => {
-//             if let Some(parent_path) = dest_path.parent() {
-//                 std::fs::create_dir_all(parent_path)?;
-//             }
-//             let mut out_file = fs::File::create(dest_path)?;
-// 
-//             // Write the response body directly to the file
-//             std::io::copy(&mut response.into_reader(), &mut out_file)
-//                 .map(|_| ())
-//                 .map_err(Box::from)
-//         }
-//     }
-// }

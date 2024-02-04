@@ -1,0 +1,30 @@
+diff -ruN match_cfg_original/Cargo.toml match_cfg/Cargo.toml
+--- match_cfg_original/Cargo.toml	2024-02-02 16:27:24.263721652 -0500
++++ match_cfg/Cargo.toml	2024-02-02 16:19:57.139113000 -0500
+@@ -23,7 +23,7 @@
+ repository = "https://github.com/gnzlbg/match_cfg"
+ 
+ [features]
+-default = ["use_core"]
++default = []
+ use_core = []
+ [badges.travis-ci]
+ repository = "gnzlbg/match_cfg"
+diff -ruN match_cfg_original/src/lib.rs match_cfg/src/lib.rs
+--- match_cfg_original/src/lib.rs	2024-02-02 16:27:37.171623722 -0500
++++ match_cfg/src/lib.rs	2024-02-02 16:20:25.566898000 -0500
+@@ -2,11 +2,11 @@
+ //! number of `#[cfg]` parameters. Structured like match statement, the first
+ //! matching branch is the item that gets emitted.
+ 
+-#![cfg_attr(not(feature = "use_core"), feature(no_core))]
++// #![cfg_attr(not(feature = "use_core"), feature(no_core))]
+ #![doc(html_root_url = "https://docs.rs/cfg-if")]
+ #![cfg_attr(test, deny(warnings))]
+-#![cfg_attr(not(feature = "use_core"), no_core)]
+-#![cfg_attr(feature = "use_core", no_std)]
++// #![cfg_attr(not(feature = "use_core"), no_core)]
++// #![cfg_attr(feature = "use_core", no_std)]
+ 
+ /// The macro provided by this crate, `match_cfg`, is similar to the `if/elif` C
+ /// preprocessor directives and allows defining a cascade of `#[cfg]` cases,

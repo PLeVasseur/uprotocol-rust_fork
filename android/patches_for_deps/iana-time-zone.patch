@@ -1,0 +1,11 @@
+diff -ruN iana-time-zone_original/Android.bp iana-time-zone/Android.bp
+--- iana-time-zone_original/Android.bp	2024-02-02 15:47:29.941886762 -0500
++++ iana-time-zone/Android.bp	2024-02-02 15:35:30.391345000 -0500
+@@ -27,6 +27,7 @@
+ srcs: ["src/lib.rs"],
+ edition: "2018",
+ cfgs: ["uuid_unstable"],
++rustlibs: ["libandroid_system_properties"],
+ apex_available: ["//apex_available:platform", "//apex_available:anyapex"],
+ product_available: true,
+ vendor_available: true,
