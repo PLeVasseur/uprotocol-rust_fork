@@ -48,7 +48,6 @@ url = { version = "2.5" }
 uuid = { version = "1.7", features = ["v8"] }
 
 [build-dependencies]
-async-std = "1.12.0"
 protobuf-codegen = { version = "3.3" }
 protoc-bin-vendored = { version = "3.0" }
 ureq = { version = "2.9", features = ["proxy-from-env"] }

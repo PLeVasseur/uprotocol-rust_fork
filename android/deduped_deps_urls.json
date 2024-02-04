@@ -20,49 +20,9 @@
     "url": "https://static.crates.io/crates/anyhow/anyhow-1.0.79.crate"
   },
   {
-    "name": "async-channel",
-    "version": "2.1.1",
-    "url": "https://static.crates.io/crates/async-channel/async-channel-2.1.1.crate"
-  },
-  {
-    "name": "async-executor",
-    "version": "1.8.0",
-    "url": "https://static.crates.io/crates/async-executor/async-executor-1.8.0.crate"
-  },
-  {
-    "name": "async-global-executor",
-    "version": "2.4.1",
-    "url": "https://static.crates.io/crates/async-global-executor/async-global-executor-2.4.1.crate"
-  },
-  {
-    "name": "async-io",
-    "version": "2.3.1",
-    "url": "https://static.crates.io/crates/async-io/async-io-2.3.1.crate"
-  },
-  {
-    "name": "async-lock",
-    "version": "3.3.0",
-    "url": "https://static.crates.io/crates/async-lock/async-lock-3.3.0.crate"
-  },
-  {
-    "name": "async-std",
-    "version": "1.12.0",
-    "url": "https://static.crates.io/crates/async-std/async-std-1.12.0.crate"
-  },
-  {
-    "name": "async-task",
-    "version": "4.7.0",
-    "url": "https://static.crates.io/crates/async-task/async-task-4.7.0.crate"
-  },
-  {
     "name": "async-trait",
     "version": "0.1.77",
     "url": "https://static.crates.io/crates/async-trait/async-trait-0.1.77.crate"
-  },
-  {
-    "name": "atomic-waker",
-    "version": "1.1.2",
-    "url": "https://static.crates.io/crates/atomic-waker/atomic-waker-1.1.2.crate"
   },
   {
     "name": "autocfg",
@@ -78,11 +38,6 @@
     "name": "bitflags",
     "version": "2.4.2",
     "url": "https://static.crates.io/crates/bitflags/bitflags-2.4.2.crate"
-  },
-  {
-    "name": "blocking",
-    "version": "1.5.1",
-    "url": "https://static.crates.io/crates/blocking/blocking-1.5.1.crate"
   },
   {
     "name": "bytes",
@@ -110,19 +65,9 @@
     "url": "https://static.crates.io/crates/cloudevents-sdk/cloudevents-sdk-0.7.0.crate"
   },
   {
-    "name": "concurrent-queue",
-    "version": "2.4.0",
-    "url": "https://static.crates.io/crates/concurrent-queue/concurrent-queue-2.4.0.crate"
-  },
-  {
     "name": "crc32fast",
     "version": "1.3.2",
     "url": "https://static.crates.io/crates/crc32fast/crc32fast-1.3.2.crate"
-  },
-  {
-    "name": "crossbeam-utils",
-    "version": "0.8.19",
-    "url": "https://static.crates.io/crates/crossbeam-utils/crossbeam-utils-0.8.19.crate"
   },
   {
     "name": "delegate-attr",
@@ -140,26 +85,6 @@
     "url": "https://static.crates.io/crates/either/either-1.9.0.crate"
   },
   {
-    "name": "encoding_rs",
-    "version": "0.8.33",
-    "url": "https://static.crates.io/crates/encoding_rs/encoding_rs-0.8.33.crate"
-  },
-  {
-    "name": "equivalent",
-    "version": "1.0.1",
-    "url": "https://static.crates.io/crates/equivalent/equivalent-1.0.1.crate"
-  },
-  {
-    "name": "event-listener",
-    "version": "4.0.3",
-    "url": "https://static.crates.io/crates/event-listener/event-listener-4.0.3.crate"
-  },
-  {
-    "name": "event-listener-strategy",
-    "version": "0.4.0",
-    "url": "https://static.crates.io/crates/event-listener-strategy/event-listener-strategy-0.4.0.crate"
-  },
-  {
     "name": "fastrand",
     "version": "2.0.1",
     "url": "https://static.crates.io/crates/fastrand/fastrand-2.0.1.crate"
@@ -170,59 +95,9 @@
     "url": "https://static.crates.io/crates/flate2/flate2-1.0.28.crate"
   },
   {
-    "name": "fnv",
-    "version": "1.0.7",
-    "url": "https://static.crates.io/crates/fnv/fnv-1.0.7.crate"
-  },
-  {
-    "name": "foreign-types",
-    "version": "0.3.2",
-    "url": "https://static.crates.io/crates/foreign-types/foreign-types-0.3.2.crate"
-  },
-  {
-    "name": "foreign-types-shared",
-    "version": "0.1.1",
-    "url": "https://static.crates.io/crates/foreign-types-shared/foreign-types-shared-0.1.1.crate"
-  },
-  {
     "name": "form_urlencoded",
     "version": "1.2.1",
     "url": "https://static.crates.io/crates/form_urlencoded/form_urlencoded-1.2.1.crate"
-  },
-  {
-    "name": "futures-channel",
-    "version": "0.3.30",
-    "url": "https://static.crates.io/crates/futures-channel/futures-channel-0.3.30.crate"
-  },
-  {
-    "name": "futures-core",
-    "version": "0.3.30",
-    "url": "https://static.crates.io/crates/futures-core/futures-core-0.3.30.crate"
-  },
-  {
-    "name": "futures-io",
-    "version": "0.3.30",
-    "url": "https://static.crates.io/crates/futures-io/futures-io-0.3.30.crate"
-  },
-  {
-    "name": "futures-lite",
-    "version": "2.2.0",
-    "url": "https://static.crates.io/crates/futures-lite/futures-lite-2.2.0.crate"
-  },
-  {
-    "name": "futures-sink",
-    "version": "0.3.30",
-    "url": "https://static.crates.io/crates/futures-sink/futures-sink-0.3.30.crate"
-  },
-  {
-    "name": "futures-task",
-    "version": "0.3.30",
-    "url": "https://static.crates.io/crates/futures-task/futures-task-0.3.30.crate"
-  },
-  {
-    "name": "futures-util",
-    "version": "0.3.30",
-    "url": "https://static.crates.io/crates/futures-util/futures-util-0.3.30.crate"
   },
   {
     "name": "getrandom",
@@ -230,14 +105,9 @@
     "url": "https://static.crates.io/crates/getrandom/getrandom-0.2.12.crate"
   },
   {
-    "name": "h2",
-    "version": "0.3.24",
-    "url": "https://static.crates.io/crates/h2/h2-0.3.24.crate"
-  },
-  {
     "name": "hashbrown",
-    "version": "0.14.3",
-    "url": "https://static.crates.io/crates/hashbrown/hashbrown-0.14.3.crate"
+    "version": "0.12.3",
+    "url": "https://static.crates.io/crates/hashbrown/hashbrown-0.12.3.crate"
   },
   {
     "name": "home",
@@ -248,36 +118,6 @@
     "name": "hostname",
     "version": "0.3.1",
     "url": "https://static.crates.io/crates/hostname/hostname-0.3.1.crate"
-  },
-  {
-    "name": "http",
-    "version": "0.2.11",
-    "url": "https://static.crates.io/crates/http/http-0.2.11.crate"
-  },
-  {
-    "name": "http-body",
-    "version": "0.4.6",
-    "url": "https://static.crates.io/crates/http-body/http-body-0.4.6.crate"
-  },
-  {
-    "name": "httparse",
-    "version": "1.8.0",
-    "url": "https://static.crates.io/crates/httparse/httparse-1.8.0.crate"
-  },
-  {
-    "name": "httpdate",
-    "version": "1.0.3",
-    "url": "https://static.crates.io/crates/httpdate/httpdate-1.0.3.crate"
-  },
-  {
-    "name": "hyper",
-    "version": "0.14.28",
-    "url": "https://static.crates.io/crates/hyper/hyper-0.14.28.crate"
-  },
-  {
-    "name": "hyper-tls",
-    "version": "0.5.0",
-    "url": "https://static.crates.io/crates/hyper-tls/hyper-tls-0.5.0.crate"
   },
   {
     "name": "iana-time-zone",
@@ -291,28 +131,13 @@
   },
   {
     "name": "indexmap",
-    "version": "2.2.2",
-    "url": "https://static.crates.io/crates/indexmap/indexmap-2.2.2.crate"
-  },
-  {
-    "name": "io-lifetimes",
-    "version": "1.0.11",
-    "url": "https://static.crates.io/crates/io-lifetimes/io-lifetimes-1.0.11.crate"
-  },
-  {
-    "name": "ipnet",
-    "version": "2.9.0",
-    "url": "https://static.crates.io/crates/ipnet/ipnet-2.9.0.crate"
+    "version": "1.9.3",
+    "url": "https://static.crates.io/crates/indexmap/indexmap-1.9.3.crate"
   },
   {
     "name": "itoa",
     "version": "1.0.10",
     "url": "https://static.crates.io/crates/itoa/itoa-1.0.10.crate"
-  },
-  {
-    "name": "kv-log-macro",
-    "version": "1.0.7",
-    "url": "https://static.crates.io/crates/kv-log-macro/kv-log-macro-1.0.7.crate"
   },
   {
     "name": "libc",
@@ -345,24 +170,9 @@
     "url": "https://static.crates.io/crates/memchr/memchr-2.7.1.crate"
   },
   {
-    "name": "mime",
-    "version": "0.3.17",
-    "url": "https://static.crates.io/crates/mime/mime-0.3.17.crate"
-  },
-  {
     "name": "miniz_oxide",
     "version": "0.7.1",
     "url": "https://static.crates.io/crates/miniz_oxide/miniz_oxide-0.7.1.crate"
-  },
-  {
-    "name": "mio",
-    "version": "0.8.10",
-    "url": "https://static.crates.io/crates/mio/mio-0.8.10.crate"
-  },
-  {
-    "name": "native-tls",
-    "version": "0.2.11",
-    "url": "https://static.crates.io/crates/native-tls/native-tls-0.2.11.crate"
   },
   {
     "name": "num-traits",
@@ -370,69 +180,14 @@
     "url": "https://static.crates.io/crates/num-traits/num-traits-0.2.17.crate"
   },
   {
-    "name": "num_cpus",
-    "version": "1.16.0",
-    "url": "https://static.crates.io/crates/num_cpus/num_cpus-1.16.0.crate"
-  },
-  {
     "name": "once_cell",
     "version": "1.19.0",
     "url": "https://static.crates.io/crates/once_cell/once_cell-1.19.0.crate"
   },
   {
-    "name": "openssl",
-    "version": "0.10.63",
-    "url": "https://static.crates.io/crates/openssl/openssl-0.10.63.crate"
-  },
-  {
-    "name": "openssl-macros",
-    "version": "0.1.1",
-    "url": "https://static.crates.io/crates/openssl-macros/openssl-macros-0.1.1.crate"
-  },
-  {
-    "name": "openssl-probe",
-    "version": "0.1.5",
-    "url": "https://static.crates.io/crates/openssl-probe/openssl-probe-0.1.5.crate"
-  },
-  {
-    "name": "openssl-sys",
-    "version": "0.9.99",
-    "url": "https://static.crates.io/crates/openssl-sys/openssl-sys-0.9.99.crate"
-  },
-  {
-    "name": "parking",
-    "version": "2.2.0",
-    "url": "https://static.crates.io/crates/parking/parking-2.2.0.crate"
-  },
-  {
     "name": "percent-encoding",
     "version": "2.3.1",
     "url": "https://static.crates.io/crates/percent-encoding/percent-encoding-2.3.1.crate"
-  },
-  {
-    "name": "pin-project-lite",
-    "version": "0.2.13",
-    "url": "https://static.crates.io/crates/pin-project-lite/pin-project-lite-0.2.13.crate"
-  },
-  {
-    "name": "pin-utils",
-    "version": "0.1.0",
-    "url": "https://static.crates.io/crates/pin-utils/pin-utils-0.1.0.crate"
-  },
-  {
-    "name": "piper",
-    "version": "0.2.1",
-    "url": "https://static.crates.io/crates/piper/piper-0.2.1.crate"
-  },
-  {
-    "name": "pkg-config",
-    "version": "0.3.29",
-    "url": "https://static.crates.io/crates/pkg-config/pkg-config-0.3.29.crate"
-  },
-  {
-    "name": "polling",
-    "version": "3.3.2",
-    "url": "https://static.crates.io/crates/polling/polling-3.3.2.crate"
   },
   {
     "name": "ppv-lite86",
@@ -535,11 +290,6 @@
     "url": "https://static.crates.io/crates/regex-syntax/regex-syntax-0.8.2.crate"
   },
   {
-    "name": "reqwest",
-    "version": "0.11.24",
-    "url": "https://static.crates.io/crates/reqwest/reqwest-0.11.24.crate"
-  },
-  {
     "name": "ring",
     "version": "0.17.7",
     "url": "https://static.crates.io/crates/ring/ring-0.17.7.crate"
@@ -553,11 +303,6 @@
     "name": "rustls",
     "version": "0.21.10",
     "url": "https://static.crates.io/crates/rustls/rustls-0.21.10.crate"
-  },
-  {
-    "name": "rustls-pemfile",
-    "version": "1.0.4",
-    "url": "https://static.crates.io/crates/rustls-pemfile/rustls-pemfile-1.0.4.crate"
   },
   {
     "name": "rustls-webpki",
@@ -590,16 +335,6 @@
     "url": "https://static.crates.io/crates/serde_json/serde_json-1.0.113.crate"
   },
   {
-    "name": "serde_urlencoded",
-    "version": "0.7.1",
-    "url": "https://static.crates.io/crates/serde_urlencoded/serde_urlencoded-0.7.1.crate"
-  },
-  {
-    "name": "slab",
-    "version": "0.4.9",
-    "url": "https://static.crates.io/crates/slab/slab-0.4.9.crate"
-  },
-  {
     "name": "snafu",
     "version": "0.6.10",
     "url": "https://static.crates.io/crates/snafu/snafu-0.6.10.crate"
@@ -608,11 +343,6 @@
     "name": "snafu-derive",
     "version": "0.6.10",
     "url": "https://static.crates.io/crates/snafu-derive/snafu-derive-0.6.10.crate"
-  },
-  {
-    "name": "socket2",
-    "version": "0.5.5",
-    "url": "https://static.crates.io/crates/socket2/socket2-0.5.5.crate"
   },
   {
     "name": "spin",
@@ -625,9 +355,9 @@
     "url": "https://static.crates.io/crates/syn/syn-2.0.48.crate"
   },
   {
-    "name": "sync_wrapper",
-    "version": "0.1.2",
-    "url": "https://static.crates.io/crates/sync_wrapper/sync_wrapper-0.1.2.crate"
+    "name": "syn",
+    "version": "1.0.109",
+    "url": "https://static.crates.io/crates/syn/syn-1.0.109.crate"
   },
   {
     "name": "tempfile",
@@ -670,41 +400,6 @@
     "url": "https://static.crates.io/crates/tinyvec_macros/tinyvec_macros-0.1.1.crate"
   },
   {
-    "name": "tokio",
-    "version": "1.36.0",
-    "url": "https://static.crates.io/crates/tokio/tokio-1.36.0.crate"
-  },
-  {
-    "name": "tokio-native-tls",
-    "version": "0.3.1",
-    "url": "https://static.crates.io/crates/tokio-native-tls/tokio-native-tls-0.3.1.crate"
-  },
-  {
-    "name": "tokio-util",
-    "version": "0.7.10",
-    "url": "https://static.crates.io/crates/tokio-util/tokio-util-0.7.10.crate"
-  },
-  {
-    "name": "tower-service",
-    "version": "0.3.2",
-    "url": "https://static.crates.io/crates/tower-service/tower-service-0.3.2.crate"
-  },
-  {
-    "name": "tracing",
-    "version": "0.1.40",
-    "url": "https://static.crates.io/crates/tracing/tracing-0.1.40.crate"
-  },
-  {
-    "name": "tracing-core",
-    "version": "0.1.32",
-    "url": "https://static.crates.io/crates/tracing-core/tracing-core-0.1.32.crate"
-  },
-  {
-    "name": "try-lock",
-    "version": "0.2.5",
-    "url": "https://static.crates.io/crates/try-lock/try-lock-0.2.5.crate"
-  },
-  {
     "name": "unicode-bidi",
     "version": "0.3.15",
     "url": "https://static.crates.io/crates/unicode-bidi/unicode-bidi-0.3.15.crate"
@@ -738,26 +433,6 @@
     "name": "uuid",
     "version": "1.7.0",
     "url": "https://static.crates.io/crates/uuid/uuid-1.7.0.crate"
-  },
-  {
-    "name": "value-bag",
-    "version": "1.7.0",
-    "url": "https://static.crates.io/crates/value-bag/value-bag-1.7.0.crate"
-  },
-  {
-    "name": "vcpkg",
-    "version": "0.2.15",
-    "url": "https://static.crates.io/crates/vcpkg/vcpkg-0.2.15.crate"
-  },
-  {
-    "name": "waker-fn",
-    "version": "1.1.1",
-    "url": "https://static.crates.io/crates/waker-fn/waker-fn-1.1.1.crate"
-  },
-  {
-    "name": "want",
-    "version": "0.3.1",
-    "url": "https://static.crates.io/crates/want/want-0.3.1.crate"
   },
   {
     "name": "webpki-roots",

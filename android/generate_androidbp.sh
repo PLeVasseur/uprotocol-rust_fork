@@ -16,50 +16,50 @@ CRATE_ARCHIVE_DIR="${CRATE_BUILD_DIR}/archives"
 mkdir -p $CRATE_ARCHIVE_DIR
 AVAILABLE_CRATES="${SCRIPT_DIR}/../../crates"
 
-# # Phase 1: Generate Android.bp for crate
-# 
-# # TODO: Add ability to parse some command line args to trigger only certain parts
-# cargo_embargo autoconfig cargo_embargo.json
-# 
-# Phase 2: Generate listing of deps for crate + their download URLs
-# 
-# cargo tree --prefix=none | "${SCRIPT_DIR}/cargo_to_json_deps.sh" > "${ANDROID_BUILD_DIR}/deps.json"
-# jq -f "${SCRIPT_DIR}/dedup_deps.jq" "${ANDROID_BUILD_DIR}/deps.json" > "${ANDROID_BUILD_DIR}/deduped_deps.json"
-# jq -f "${SCRIPT_DIR}/add_dl_urls.jq" "${ANDROID_BUILD_DIR}/deduped_deps.json" > "${ANDROID_BUILD_DIR}/deduped_deps_urls.json"
-# 
-# # Phase 3: Download all the crates
-# 
-# jq -c '.[]' "${ANDROID_BUILD_DIR}/deduped_deps_urls.json" | while read -r i; do
-#     url=$(echo "$i" | jq -r '.url')
-#     file_name=$(basename "$url")
-#     save_path="$CRATE_ARCHIVE_DIR$file_name"
-# 
-#     echo "Downloading $url..."
-#     curl -o "$save_path" "$url"
-# done
-# 
-# # Phase 4: Unzip crates
-# 
-# find $CRATE_ARCHIVE_DIR -name '*.crate' -exec tar -xzf {} -C $CRATE_BUILD_DIR \;
-# 
-# Phase 5: Run `cargo_embargo autoconfig cargo_embargo.json` on each folder
-# 
-# original_dir=$(pwd)
-# 
-# # Iterate over each folder in CRATE_BUILD_DIR
-# find "$CRATE_BUILD_DIR" -mindepth 1 -maxdepth 1 -type d | while read -r dir; do
-#     echo "Entering directory $dir"
-#     cd "$dir" || exit
-# 
-#     # Run cargo_embargo command
-#     echo "Running 'cargo_embargo autoconfig cargo_embargo.json' in $dir"
-#     cargo_embargo autoconfig cargo_embargo.json
-# 
-#     # Return to the original directory
-#     cd "$original_dir" || exit
-# done
-# 
-# echo "Completed processing all directories."
+## Phase 1: Generate Android.bp for crate
+
+# TODO: Add ability to parse some command line args to trigger only certain parts
+cargo_embargo autoconfig cargo_embargo.json
+
+## Phase 2: Generate listing of deps for crate + their download URLs
+
+cargo tree --prefix=none | "${SCRIPT_DIR}/cargo_to_json_deps.sh" > "${ANDROID_BUILD_DIR}/deps.json"
+jq -f "${SCRIPT_DIR}/dedup_deps.jq" "${ANDROID_BUILD_DIR}/deps.json" > "${ANDROID_BUILD_DIR}/deduped_deps.json"
+jq -f "${SCRIPT_DIR}/add_dl_urls.jq" "${ANDROID_BUILD_DIR}/deduped_deps.json" > "${ANDROID_BUILD_DIR}/deduped_deps_urls.json"
+
+## Phase 3: Download all the crates
+
+jq -c '.[]' "${ANDROID_BUILD_DIR}/deduped_deps_urls.json" | while read -r i; do
+    url=$(echo "$i" | jq -r '.url')
+    file_name=$(basename "$url")
+    save_path="$CRATE_ARCHIVE_DIR/$file_name"
+
+    echo "Downloading $url..."
+    curl -o "$save_path" "$url"
+done
+
+## Phase 4: Unzip crates
+
+find $CRATE_ARCHIVE_DIR -name '*.crate' -exec tar -xzf {} -C $CRATE_BUILD_DIR \;
+
+## Phase 5: Run `cargo_embargo autoconfig cargo_embargo.json` on each folder
+
+original_dir=$(pwd)
+
+# Iterate over each folder in CRATE_BUILD_DIR
+find "$CRATE_BUILD_DIR" -mindepth 1 -maxdepth 1 -type d | while read -r dir; do
+    echo "Entering directory $dir"
+    cd "$dir" || exit
+
+    # Run cargo_embargo command
+    echo "Running 'cargo_embargo autoconfig cargo_embargo.json' in $dir"
+    cargo_embargo autoconfig cargo_embargo.json
+
+    # Return to the original directory
+    cd "$original_dir" || exit
+done
+
+echo "Completed processing all directories."
 
 ## Phase 6: Catalog successes and failures to understand which crates
 # we will be able to make an Android.bp for: NOT_AVAILABLE_CARGO_EMBARGO_SUCCESS
@@ -98,7 +98,7 @@ for crate in "${NOT_AVAILABLE_CARGO_EMBARGO_FAIL[@]}"; do
     echo "$crate"
 done
 
-# Phase 7: For any NOT_AVAILABLE_CARGO_EMBARGO_SUCCESS, we want to catalog the build deps and then search for
+## Phase 7: For any NOT_AVAILABLE_CARGO_EMBARGO_SUCCESS, we want to catalog the build deps and then search for
 #  if any of those have their deps completely covered by what's available in AVAILABLE_CRATES and put those into
 #  a list called MUST_BUILD_CRATES_AVAILABLE and for those that are not completely covered, put them in a list
 #  called MUST_BUILD_CRATES_NOT_AVAILABLE with which deps are NOT_AVAILABLE
@@ -115,13 +115,13 @@ check_deps_available() {
     local all_deps_available=true
     local unavailable_deps=()
 
-    echo "check_deps_available for crate: ${crate_name}"
+    # echo "check_deps_available for crate: ${crate_name}"
 
     # Read dependencies from the JSON file
     local deps=$(jq -r '.[] | .name' "$deps_file")
 
     for dep in $deps; do
-        echo "checking dep: ${dep}"
+        # echo "checking dep: ${dep}"
         if [ ! -d "$AVAILABLE_CRATES/$dep" ]; then
             # echo "dep unavailable: ${dep}"
             all_deps_available=false
@@ -130,10 +130,10 @@ check_deps_available() {
     done
 
     if $all_deps_available; then
-        echo "all deps available for crate: ${crate_name}"
+        # echo "all deps available for crate: ${crate_name}"
         MUST_BUILD_CRATES_AVAILABLE+=("$crate_name")
     else
-        echo "all deps not available for crate: ${crate_name}"
+        # echo "all deps not available for crate: ${crate_name}"
         echo "$crate_name: ${unavailable_deps[*]}" >> "${CRATE_BUILD_DIR}/MUST_BUILD_CRATES_NOT_AVAILABLE.txt"
     fi
 }
