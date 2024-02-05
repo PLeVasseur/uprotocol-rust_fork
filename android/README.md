@@ -41,7 +41,11 @@
 * protoc-bin-vendored-3.0.0: protoc-bin-vendored-linux-aarch_64 protoc-bin-vendored-linux-x86_32 protoc-bin-vendored-linux-x86_64 protoc-bin-vendored-macos-x86_64
   * Done
 * adler-1.0.2
+  * Done
 * sct-0.7.1
+  * Done
+* miniz_oxide-0.7.1: adler
+  * Done
 * test-case-core-3.3.1
 
 # MUST_BUILD_CRATES_NOT_AVAILALBE.TXT
@@ -49,7 +53,6 @@
 * cloudevents-sdk-0.7.0: actix-macros actix-rt assert-json-diff claim colored delegate-attr difference dtoa extend hostname is-terminal mime mockito proc-macro-error proc-macro-error-attr pulldown-cmark rmp rmp-serde rstest rustc_version rustix semver-parser serde_urlencoded signal-hook-registry snafu snafu-derive tower tower-layer tower-service unicase version-sync version_check
 * delegate-attr-0.2.9: basic-toml trybuild
 * hostname-0.3.1: matches pulldown-cmark semver-parser unicase version-sync version_check
-* miniz_oxide-0.7.1: adler
 * rustix-0.38.31: adler dashmap errno miniz_oxide rustix serial_test serial_test_derive
 * test-case-3.3.1: console insta similar test-case-core test-case-macros
 * test-case-macros-3.3.1: test-case-core
