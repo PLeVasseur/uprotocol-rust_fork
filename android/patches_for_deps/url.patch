@@ -1,0 +1,18 @@
+diff -ruN url_original/Android.bp url/Android.bp
+--- url_original/Android.bp	2024-02-05 17:48:36.491441595 -0500
++++ url/Android.bp	2024-02-05 17:42:45.029674000 -0500
+@@ -45,11 +45,12 @@
+     cargo_pkg_version: "2.3.1",
+     srcs: ["src/lib.rs"],
+     edition: "2018",
+-    features: ["default"],
++    features: ["default", "serde"],
+     rustlibs: [
+         "libform_urlencoded",
+         "libidna",
+-        "libpercent_encoding"
++        "libpercent_encoding",
++        "libserde"
+     ],
+     apex_available: [
+         "//apex_available:platform",

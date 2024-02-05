@@ -1,0 +1,60 @@
+diff -ruN hostname_original/Android.bp hostname/Android.bp
+--- hostname_original/Android.bp	2024-02-05 17:19:27.975065000 -0500
++++ hostname/Android.bp	2024-02-05 17:10:37.482752000 -0500
+@@ -2,40 +2,6 @@
+ // Do not modify this file as changes will be overridden on upgrade.
+ 
+ // TODO: Add license.
+-rust_test {
+-name: "hostname_test_src_lib",
+-host_supported: true,
+-crate_name: "hostname",
+-cargo_env_compat: true,
+-cargo_pkg_version: "0.3.1",
+-srcs: ["src/lib.rs"],
+-test_suites: ["general-tests"],
+-auto_gen_config: true,
+-test_options: {
+-unit_test: true,
+-},
+-edition: "2015",
+-features: ["default"],
+-rustlibs: ["liblibc", "libmatch_cfg", "libversion_sync"],
+-}
+-
+-rust_test {
+-name: "hostname_test_tests_version",
+-host_supported: true,
+-crate_name: "version",
+-cargo_env_compat: true,
+-cargo_pkg_version: "0.3.1",
+-srcs: ["tests/version.rs"],
+-test_suites: ["general-tests"],
+-auto_gen_config: true,
+-test_options: {
+-unit_test: true,
+-},
+-edition: "2015",
+-features: ["default"],
+-rustlibs: ["libhostname", "liblibc", "libmatch_cfg", "libversion_sync"],
+-}
+-
+ rust_library {
+ name: "libhostname",
+ host_supported: true,
+@@ -45,6 +11,7 @@
+ srcs: ["src/lib.rs"],
+ edition: "2015",
+ features: ["default"],
++cfgs: ["uuid_unstable"],
+ rustlibs: ["liblibc", "libmatch_cfg"],
+ apex_available: ["//apex_available:platform", "//apex_available:anyapex"],
+ product_available: true,
+diff -ruN hostname_original/cargo_embargo.json hostname/cargo_embargo.json
+--- hostname_original/cargo_embargo.json	2024-02-05 17:16:47.532179731 -0500
++++ hostname/cargo_embargo.json	2024-02-05 17:10:28.590814000 -0500
+@@ -1,3 +1,3 @@
+ {
+-  "tests": true
++  "tests": false
+ }

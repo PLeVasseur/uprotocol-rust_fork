@@ -1,0 +1,20 @@
+diff -ruN delegate-attr_original/Android.bp delegate-attr/Android.bp
+--- delegate-attr_original/Android.bp	2024-02-05 16:41:29.806829065 -0500
++++ delegate-attr/Android.bp	2024-02-05 16:33:03.410238000 -0500
+@@ -9,7 +9,7 @@
+ cargo_pkg_version: "0.2.9",
+ srcs: ["src/lib.rs"],
+ edition: "2018",
+-rustlibs: ["libproc_macro2", "libquote", "libsyn"],
++rustlibs: ["libproc_macro2", "libquote", "libsyn_deprecated"],
+ product_available: true,
+ vendor_available: true,
+ }
+diff -ruN delegate-attr_original/cargo_embargo.json delegate-attr/cargo_embargo.json
+--- delegate-attr_original/cargo_embargo.json	2024-02-05 16:41:55.678654642 -0500
++++ delegate-attr/cargo_embargo.json	2024-02-05 15:52:56.062308000 -0500
+@@ -1,3 +1,3 @@
+ {
+-  "tests": true
++  "tests": false
+ }
