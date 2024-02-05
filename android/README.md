@@ -39,9 +39,7 @@
 * protoc-bin-vendored-macos-x86_64-3.0.0
   * Done
 * protoc-bin-vendored-3.0.0: protoc-bin-vendored-linux-aarch_64 protoc-bin-vendored-linux-x86_32 protoc-bin-vendored-linux-x86_64 protoc-bin-vendored-macos-x86_64
-  * In-progress
-  * Having to revisit the protoc-bin-vendored-foo, since I'm having build issues with them as-is
-    * Changed them to rust_library_host, but still having issues.
+  * Done
 * adler-1.0.2
 * sct-0.7.1
 * test-case-core-3.3.1
