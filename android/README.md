@@ -60,4 +60,4 @@
 * test-case-3.3.1: console insta similar test-case-core test-case-macros
 * test-case-macros-3.3.1: test-case-core
 * ureq-2.9.1: adler humantime is-terminal miniz_oxide rustix rustls rustls-pemfile rustls-webpki sct webpki-roots
-webpki-roots-0.25.4: asn1-rs asn1-rs-derive asn1-rs-impl der-parser deranged encoding_rs h2 http-body httpdate hyper hyper-rustls hyper-tls ipnet mime native-tls num-conv oid-registry openssl-probe openssl-sys pem pkg-config powerfmt rcgen reqwest rusticata-macros rustls rustls-pemfile rustls-webpki sct serde_urlencoded sync_wrapper time time-core time-macros tokio-native-tls tokio-rustls tower-service try-lock vcpkg want x509-parser yasna
+* webpki-roots-0.25.4: asn1-rs asn1-rs-derive asn1-rs-impl der-parser deranged encoding_rs h2 http-body httpdate hyper hyper-rustls hyper-tls ipnet mime native-tls num-conv oid-registry openssl-probe openssl-sys pem pkg-config powerfmt rcgen reqwest rusticata-macros rustls rustls-pemfile rustls-webpki sct serde_urlencoded sync_wrapper time time-core time-macros tokio-native-tls tokio-rustls tower-service try-lock vcpkg want x509-parser yasna
