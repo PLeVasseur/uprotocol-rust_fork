@@ -16,16 +16,26 @@ CRATE_ARCHIVE_DIR="${CRATE_BUILD_DIR}/archives"
 mkdir -p $CRATE_ARCHIVE_DIR
 AVAILABLE_CRATES="${SCRIPT_DIR}/../../crates"
 
-## Phase 1: Generate Android.bp for crate
+PREV_DEPS="${SCRIPT_DIR}/deduped_deps_urls.json"
+CURR_DEPS="${ANDROID_BUILD_DIR}/deduped_deps_urls.json"
 
-# TODO: Add ability to parse some command line args to trigger only certain parts
-# cargo_embargo autoconfig cargo_embargo.json
-
-## Phase 2: Generate listing of deps for crate + their download URLs
+## Phase 1: Generate listing of deps for crate + their download URLs
 
 cargo tree --prefix=none | "${SCRIPT_DIR}/cargo_to_json_deps.sh" > "${ANDROID_BUILD_DIR}/deps.json"
 jq -f "${SCRIPT_DIR}/dedup_deps.jq" "${ANDROID_BUILD_DIR}/deps.json" > "${ANDROID_BUILD_DIR}/deduped_deps.json"
 jq -f "${SCRIPT_DIR}/add_dl_urls.jq" "${ANDROID_BUILD_DIR}/deduped_deps.json" > "${ANDROID_BUILD_DIR}/deduped_deps_urls.json"
+
+## Phase 2: Check if any new deps or existing deps' versions have changed. If so, print a warning that manual
+#           intervention should be required.
+
+compare_deps_output=$(jq -s -f "${SCRIPT_DIR}/compare_deps.jq" $PREV_DEPS $CURR_DEPS)
+compare_deps_output_file="${ANDROID_BUILD_DIR}/comparison_result.json"
+if [ "$compare_deps_output" = '"[]"' ]; then
+    echo "Previous deps is a superset of curr deps, continuing..."
+else
+    echo "Deps comparison failed, some manual intervention is required. Reference ${compare_deps_output_file}"
+    echo "$compare_deps_output" > "$compare_deps_output_file"
+fi
 
 ### Phase 3: Download all the crates
 #
