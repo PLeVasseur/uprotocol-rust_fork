@@ -15,6 +15,11 @@
     "url": "https://static.crates.io/crates/android_system_properties/android_system_properties-0.1.5.crate"
   },
   {
+    "name": "android-tzdata",
+    "version": "0.1.1",
+    "url": "https://static.crates.io/crates/android_system_properties/android_system_properties-0.1.5.crate"
+  },
+  {
     "name": "anyhow",
     "version": "1.0.79",
     "url": "https://static.crates.io/crates/anyhow/anyhow-1.0.79.crate"
@@ -353,11 +358,6 @@
     "name": "syn",
     "version": "2.0.48",
     "url": "https://static.crates.io/crates/syn/syn-2.0.48.crate"
-  },
-  {
-    "name": "syn",
-    "version": "1.0.109",
-    "url": "https://static.crates.io/crates/syn/syn-1.0.109.crate"
   },
   {
     "name": "tempfile",
