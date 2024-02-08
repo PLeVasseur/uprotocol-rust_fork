@@ -1,3 +1,56 @@
+# Working with `up-rust` on Android
+
+## Compiling for Android
+
+We do not use `cargo` when building for Android, but instead use the `Soong`
+build system. The dependencies for `up-rust` can be packaged for `Soong` and the
+`up-rust` crate built by following the steps below.
+
+1. Get the Android Open Source Project
+2. `git clone` this project (`up-rust`) into `<aosp-root>/external/rust`
+3. Run `android/generate_all_deps_soong.sh`
+   * Will download and apply patches as necessary to all dependencies
+4. Run `android/generate_soong.sh` to generate the `Android.bp` Soong
+   build configuration for `up-rust`
+5. Setup your build environment (execute the following from `<aosp-root>`:
+   1. `$ source build/envsetup.sh`
+   2. Choose which architecture to compile for
+      3. `x86_64`: useful for running on AVD in Android Studio
+          * `$ lunch aosp_x86_64-trunk_staging-eng`
+      4. `ARMv8-A`: useful if you want to deploy to a phone
+         * `$ lunch armv8-trunk_staging-eng`
+6. Compile `up-rust`. From `<aosp-root>/external/rust/up-rust`
+   1. `$ m libup_rust`
+      * This will compile both the library crate `up-rust` as well
+         as the unit tests
+
+## Testing on Android
+
+A quick sanity check is to copy the unit tests over to either your
+  emulated device or hardware device and run it
+
+* The unit test binary can be found under the out path
+  * `x86_64`: `<aosp-root>/out/target/product/generic_x86_64/testcases/uprotocol-sdk_test_src_lib/<unit-test-binary>`
+  * `ARMv8-A`: `<aosp-root>/out/target/product/armv8/testcases/uprotocol-sdk_test_src_lib/arm64/<unit-test-binary>`
+* Recall that you'd do that like this:
+  1. `~/Android/Sdk/platform-tools/adb push <unit-test-binary> /data/local/tmp`
+  2. `~/Android/Sdk/platform-tools/adb shell`
+  3. Now from within the shell on the emulated or hardware device
+     1. `cd /data/local/tmp`
+     2. `chmod +x <unit-test-binary>`
+
+## Developing on Android
+
+The development process differs a bit since we do not use `cargo`, but
+the Android Open Source Project build tool `Soong` instead.
+
+You can create your crate just as you normally would, but then you must 
+use the `cargo_embargo` tool in order to:
+1. Create a `cargo_embargo.json` file (or manually if you know what you're doing)
+   * Used by the `cargo_embargo` tool to create the `Android.bp`
+2. Create an `Android.bp` file
+   * The Android Open Source Project `Soong` uses these to build
+
 # Crates that must be built and have all dependencies available:
 
 ## Crates build in this order, considering dependencies, not alphabetical
