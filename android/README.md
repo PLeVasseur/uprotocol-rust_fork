@@ -52,9 +52,16 @@
   * Done
 * cloudevents-sdk-0.7.0: actix-macros actix-rt assert-json-diff claim colored delegate-attr difference dtoa extend hostname is-terminal mime mockito proc-macro-error proc-macro-error-attr pulldown-cmark rmp rmp-serde rstest rustc_version rustix semver-parser serde_urlencoded signal-hook-registry snafu snafu-derive tower tower-layer tower-service unicase version-sync version_check
   * Done
+* rustls-webpki
+  * Done
+* ring
+  * Done
+* webpki-roots-0.25.4: asn1-rs asn1-rs-derive asn1-rs-impl der-parser deranged encoding_rs h2 http-body httpdate hyper hyper-rustls hyper-tls ipnet mime native-tls num-conv oid-registry openssl-probe openssl-sys pem pkg-config powerfmt rcgen reqwest rusticata-macros rustls rustls-pemfile rustls-webpki sct serde_urlencoded sync_wrapper time time-core time-macros tokio-native-tls tokio-rustls tower-service try-lock vcpkg want x509-parser yasna
+  * Done
 * rustls
-  * In-progress
+  * Done
 * ureq-2.9.1: adler humantime is-terminal miniz_oxide rustix rustls rustls-pemfile rustls-webpki sct webpki-roots
+  * Done
 * test-case-core-3.3.1
 
 # MUST_BUILD_CRATES_NOT_AVAILALBE.TXT
@@ -62,4 +69,3 @@
 * rustix-0.38.31: adler dashmap errno miniz_oxide rustix serial_test serial_test_derive
 * test-case-3.3.1: console insta similar test-case-core test-case-macros
 * test-case-macros-3.3.1: test-case-core
-* webpki-roots-0.25.4: asn1-rs asn1-rs-derive asn1-rs-impl der-parser deranged encoding_rs h2 http-body httpdate hyper hyper-rustls hyper-tls ipnet mime native-tls num-conv oid-registry openssl-probe openssl-sys pem pkg-config powerfmt rcgen reqwest rusticata-macros rustls rustls-pemfile rustls-webpki sct serde_urlencoded sync_wrapper time time-core time-macros tokio-native-tls tokio-rustls tower-service try-lock vcpkg want x509-parser yasna
