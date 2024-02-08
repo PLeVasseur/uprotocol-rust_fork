@@ -1,10 +1,13 @@
 #!/bin/bash
 
+# TODO: Create a patch for cargo_embargo, fixing the issue I found
+
 # Requirements (normal for an Android project)
 # 1. Have repo cloned the Android Open Source Project
 # 2. Built cargo_embargo (refer to its docs)
-# 3. `source build/envsetup.sh` from AOSP root
+# 3. `source build/envsetup.sh` from <aosp-root>
 # 4. jq installed
+# 5. cargo tree installed
 
 LIB_MIDFIX=_up_rust_
 SCRIPT_DIR=$(dirname "$0")
@@ -50,9 +53,23 @@ else
     exit 1
 fi
 
+## Phase 3: Identify crates to download
+#########################
+# TODO: Should I do this? Could save bandwidth to only download what's needed...?
+#  On the other hand... which crates are available in external/rust/crates is going to be a moving target, so...
+#  probably makes the most sense to:
+#    1. do version comparisons with what's available in $AVAILABLE_CRATES
+#    2. for anything where the major version doesn't match (if it's a > 1.0 release) or where there's a breaking
+#        change in a < 1.0 crate, we can download the crate and build it
+#    3. for any crate we're building that we haven't built before, there's a choice... do we:
+#        A. Just throw an error and let the user intervene?
+#        B. Attempt to just do a cargo_embargo autoconfig cargo_embargo.json and if that doesn't work, then throw
+#           an error and let the user intervene?
+
 ## Phase 3: Download all the crates
 #########################
 if [ -z "$SKIP_DOWNLOAD" ]; then
+  echo "Downloading dependencies..."
   jq -c '.[]' "${ANDROID_BUILD_DIR}/deduped_deps_urls.json" | while read -r i; do
       url=$(echo "$i" | jq -r '.url')
       file_name=$(basename "$url")
@@ -61,6 +78,8 @@ if [ -z "$SKIP_DOWNLOAD" ]; then
       echo "Downloading $url..."
       curl -o "$save_path" "$url"
   done
+else
+  echo "Skipping downloading dependencies..."
 fi
 
 ## Phase 4: Unzip crates
