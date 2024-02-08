@@ -73,6 +73,11 @@
 * chrono
   * Done
 * test-case-core-3.3.1
+  * Done
+* test-case-macros-3.3.1: test-case-core
+  * Done
+* test-case-3.3.1: console insta similar test-case-core test-case-macros
+  * Done
 
 ## Currently manually copying Rust code generated from .proto to src/out
 
@@ -81,5 +86,3 @@ Need to figure out how to automate this using cargo_embargo. Couldn't get it to 
 # MUST_BUILD_CRATES_NOT_AVAILALBE.TXT
 
 * rustix-0.38.31: adler dashmap errno miniz_oxide rustix serial_test serial_test_derive
-* test-case-3.3.1: console insta similar test-case-core test-case-macros
-* test-case-macros-3.3.1: test-case-core
