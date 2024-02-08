@@ -62,7 +62,21 @@
   * Done
 * ureq-2.9.1: adler humantime is-terminal miniz_oxide rustix rustls rustls-pemfile rustls-webpki sct webpki-roots
   * Done
+* protobuf-support
+  * Done
+* protobuf
+  * Done
+* uuid
+  * Done
+* android-tzdata
+  * Done
+* chrono
+  * Done
 * test-case-core-3.3.1
+
+## Currently manually copying Rust code generated from .proto to src/out
+
+Need to figure out how to automate this using cargo_embargo. Couldn't get it to work yet.
 
 # MUST_BUILD_CRATES_NOT_AVAILALBE.TXT
 
