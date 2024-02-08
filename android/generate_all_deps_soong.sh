@@ -34,8 +34,8 @@ if [ "$compare_deps_output" = '"[]"' ]; then
     echo "Previous deps is a superset of curr deps, continuing..."
 else
     echo "Deps comparison failed, some manual intervention is required. Reference ${compare_deps_output_file}"
-    echo "$compare_deps_output" > "$compare_deps_output_file"
 fi
+echo "$compare_deps_output" > "$compare_deps_output_file"
 
 ### Phase 3: Download all the crates
 #
