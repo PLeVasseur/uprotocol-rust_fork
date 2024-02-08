@@ -19,39 +19,54 @@ AVAILABLE_CRATES="${SCRIPT_DIR}/../../crates"
 PREV_DEPS="${SCRIPT_DIR}/deduped_deps_urls.json"
 CURR_DEPS="${ANDROID_BUILD_DIR}/deduped_deps_urls.json"
 
-## Phase 1: Generate listing of deps for crate + their download URLs
+# Parse command-line arguments
+for arg in "$@"
+do
+    case $arg in
+        --skip-download)
+        SKIP_DOWNLOAD=1
+        shift
+        ;;
+    esac
+done
 
+## Phase 1: Generate listing of deps for crate + their download URLs
+######################
 cargo tree --prefix=none | "${SCRIPT_DIR}/cargo_to_json_deps.sh" > "${ANDROID_BUILD_DIR}/deps.json"
 jq -f "${SCRIPT_DIR}/dedup_deps.jq" "${ANDROID_BUILD_DIR}/deps.json" > "${ANDROID_BUILD_DIR}/deduped_deps.json"
 jq -f "${SCRIPT_DIR}/add_dl_urls.jq" "${ANDROID_BUILD_DIR}/deduped_deps.json" > "${ANDROID_BUILD_DIR}/deduped_deps_urls.json"
 
 ## Phase 2: Check if any new deps or existing deps' versions have changed. If so, print a warning that manual
 #           intervention should be required.
-
+#######################
 compare_deps_output=$(jq -s -f "${SCRIPT_DIR}/compare_deps.jq" $PREV_DEPS $CURR_DEPS)
 compare_deps_output_file="${ANDROID_BUILD_DIR}/comparison_result.json"
 if [ "$compare_deps_output" = '"[]"' ]; then
     echo "Previous deps is a superset of curr deps, continuing..."
+    echo "$compare_deps_output" > "$compare_deps_output_file"
 else
     echo "Deps comparison failed, some manual intervention is required. Reference ${compare_deps_output_file}"
+    echo "$compare_deps_output" > "$compare_deps_output_file"
+    exit 1
 fi
-echo "$compare_deps_output" > "$compare_deps_output_file"
 
-### Phase 3: Download all the crates
-#
-#jq -c '.[]' "${ANDROID_BUILD_DIR}/deduped_deps_urls.json" | while read -r i; do
-#    url=$(echo "$i" | jq -r '.url')
-#    file_name=$(basename "$url")
-#    save_path="$CRATE_ARCHIVE_DIR/$file_name"
-#
-#    echo "Downloading $url..."
-#    curl -o "$save_path" "$url"
-#done
-#
-### Phase 4: Unzip crates
-#
-#find $CRATE_ARCHIVE_DIR -name '*.crate' -exec tar -xzf {} -C $CRATE_BUILD_DIR \;
-#
+## Phase 3: Download all the crates
+#########################
+if [ -z "$SKIP_DOWNLOAD" ]; then
+  jq -c '.[]' "${ANDROID_BUILD_DIR}/deduped_deps_urls.json" | while read -r i; do
+      url=$(echo "$i" | jq -r '.url')
+      file_name=$(basename "$url")
+      save_path="$CRATE_ARCHIVE_DIR/$file_name"
+
+      echo "Downloading $url..."
+      curl -o "$save_path" "$url"
+  done
+fi
+
+## Phase 4: Unzip crates
+########################
+find $CRATE_ARCHIVE_DIR -name '*.crate' -exec tar -xzf {} -C $CRATE_BUILD_DIR \;
+
 ### Phase 5: Run `cargo_embargo autoconfig cargo_embargo.json` on each folder
 #
 #original_dir=$(pwd)
