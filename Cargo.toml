@@ -52,7 +52,7 @@ uuid = { version = "1.4", features = ["v6", "v8"] }
 [build-dependencies]
 prost-build = { version = "0.12" }
 protoc-bin-vendored = { version = "3" }
-ureq = "2.7"
+ureq = { version = "2.9.1", features = ["proxy-from-env"] }
 
 [dev-dependencies]
 base64 = "0.21"
