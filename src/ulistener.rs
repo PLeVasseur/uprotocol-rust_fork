@@ -27,31 +27,3 @@ pub trait UListener: Any + Send + Sync {
     /// * `received` - Either the message or error `UStatus` received
     fn on_receive(&self, received: Result<UMessage, UStatus>);
 }
-pub trait CloneBoxUListener {
-    fn clone_box(&self) -> Box<dyn ClonableBoxUListener + 'static>;
-}
-
-impl<T> CloneBoxUListener for T
-where
-    T: 'static + ClonableBoxUListener + Clone + Send + Sync,
-{
-    fn clone_box(&self) -> Box<dyn ClonableBoxUListener + 'static> {
-        Box::new(self.clone())
-    }
-}
-
-impl CloneBoxUListener for Box<dyn ClonableBoxUListener> {
-    fn clone_box(&self) -> Box<dyn ClonableBoxUListener + 'static> {
-        self.as_ref().clone_box()
-    }
-}
-
-pub trait ClonableBoxUListener: UListener + CloneBoxUListener {}
-
-impl<T> ClonableBoxUListener for T where T: UListener + Clone + Send + Sync {}
-
-impl Clone for Box<dyn ClonableBoxUListener> {
-    fn clone(&self) -> Self {
-        self.clone_box()
-    }
-}
