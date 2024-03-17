@@ -25,6 +25,7 @@ use std::sync::Arc;
 ///
 /// In the reverse, if two different instances of Arc<T> are used to construct two ArcListener,
 /// they will not be considered equivalent due to the Arc pointer being different for each instance
+#[derive(Clone)]
 pub struct ListenerWrapper {
     listener: Arc<dyn UListener>,
     pointer_hash: u64,
