@@ -19,11 +19,11 @@ use std::sync::Arc;
 /// Also implements necessary traits to allow hashing, so that you may hold the wrapper type in
 /// collections which require that, such as a `HashMap` or `HashSet`
 ///
-/// Note that the implementation is such that if the same instance of Arc<T> is used multiple times
+/// Note that the implementation is such that if the same instance of `Arc<T>` is used multiple times
 /// to construct multiple different wrappers, then these wrappers are all considered equivalent
 /// due to using the Arc's pointer to as unique identifier
 ///
-/// In the reverse, if two different instances of Arc<T> are used to construct two ArcListener,
+/// In the reverse, if two different instances of `Arc<T>` are used to construct two wrappers,
 /// they will not be considered equivalent due to the Arc pointer being different for each instance
 #[derive(Clone)]
 pub struct ListenerWrapper {
