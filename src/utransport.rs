@@ -12,7 +12,9 @@
  ********************************************************************************/
 
 use async_trait::async_trait;
+use std::sync::Arc;
 
+use crate::ulistener::UListener;
 use crate::{UMessage, UStatus, UUri};
 
 /// `UTransport` is the uP-L1 interface that provides a common API for uE developers to send and receive messages.
@@ -60,18 +62,12 @@ pub trait UTransport {
     /// * `address` - The (resolved) address to register the listener for.
     /// * `listener` - The listener to invoke.
     ///
-    /// # Returns
-    ///
-    /// An identifier that can be used for [unregistering the listener](Self::unregister_listener) again.
-    ///
     /// # Errors
     ///
     /// Returns an error if the listener could not be registered.
-    async fn register_listener(
-        &self,
-        topic: UUri,
-        listener: Box<dyn Fn(Result<UMessage, UStatus>) + Send + Sync + 'static>,
-    ) -> Result<String, UStatus>;
+    async fn register_listener<T>(&self, topic: UUri, listener: &Arc<T>) -> Result<(), UStatus>
+    where
+        T: UListener;
 
     /// Unregisters a listener for a given topic.
     ///
@@ -85,5 +81,270 @@ pub trait UTransport {
     /// # Errors
     ///
     /// Returns an error if the listener could not be unregistered, for example if the given listener does not exist.
-    async fn unregister_listener(&self, topic: UUri, listener: &str) -> Result<(), UStatus>;
+    async fn unregister_listener<T>(&self, topic: UUri, listener: &Arc<T>) -> Result<(), UStatus>
+    where
+        T: UListener;
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::listener_wrapper::ListenerWrapper;
+    use crate::ulistener::UListener;
+    use crate::{Number, UAuthority, UCode, UMessage, UStatus, UTransport, UUri};
+    use async_std::task;
+    use async_trait::async_trait;
+    use std::collections::hash_map::Entry;
+    use std::collections::{HashMap, HashSet};
+    use std::sync::{Arc, Mutex};
+
+    struct UPClientFoo {
+        #[allow(clippy::type_complexity)]
+        listeners: Arc<Mutex<HashMap<UUri, HashSet<ListenerWrapper>>>>,
+    }
+
+    impl UPClientFoo {
+        pub fn new() -> Self {
+            Self {
+                listeners: Arc::new(Mutex::new(HashMap::new())),
+            }
+        }
+
+        pub fn check_on_receive(&self, uuri: &UUri, umessage: &UMessage) -> Result<(), UStatus> {
+            let mut topics_listeners = self.listeners.lock().unwrap();
+            let listeners = topics_listeners.entry(uuri.clone());
+            match listeners {
+                Entry::Vacant(_) => {
+                    return Err(UStatus::fail_with_code(
+                        UCode::NOT_FOUND,
+                        format!("No listeners registered for topic: {:?}", &uuri),
+                    ))
+                }
+                Entry::Occupied(mut e) => {
+                    let occupied = e.get_mut();
+
+                    if occupied.is_empty() {
+                        return Err(UStatus::fail_with_code(
+                            UCode::NOT_FOUND,
+                            format!("No listeners registered for topic: {:?}", &uuri),
+                        ));
+                    }
+
+                    for listener in occupied.iter() {
+                        listener.on_receive(Ok(umessage.clone()));
+                    }
+                }
+            }
+
+            Ok(())
+        }
+    }
+
+    #[async_trait]
+    impl UTransport for UPClientFoo {
+        async fn send(&self, _message: UMessage) -> Result<(), UStatus> {
+            todo!()
+        }
+
+        async fn receive(&self, _topic: UUri) -> Result<UMessage, UStatus> {
+            todo!()
+        }
+
+        async fn register_listener<T>(&self, topic: UUri, listener: &Arc<T>) -> Result<(), UStatus>
+        where
+            T: UListener,
+        {
+            let mut topics_listeners = self.listeners.lock().unwrap();
+            let listeners = topics_listeners.entry(topic).or_default();
+            let identified_listener = ListenerWrapper::new(listener);
+            listeners.insert(identified_listener);
+
+            Err(UStatus::fail_with_code(
+                UCode::OK,
+                format!("{}", listeners.len()),
+            ))
+        }
+
+        async fn unregister_listener<T>(
+            &self,
+            topic: UUri,
+            listener: &Arc<T>,
+        ) -> Result<(), UStatus>
+        where
+            T: UListener,
+        {
+            let mut topics_listeners = self.listeners.lock().unwrap();
+            let listeners = topics_listeners.entry(topic.clone());
+            match listeners {
+                Entry::Vacant(_) => {
+                    return Err(UStatus::fail_with_code(
+                        UCode::NOT_FOUND,
+                        format!("No listeners registered for topic: {:?}", &topic),
+                    ))
+                }
+                Entry::Occupied(mut e) => {
+                    let occupied = e.get_mut();
+                    let identified_listener = ListenerWrapper::new(listener);
+                    occupied.remove(&identified_listener);
+                    return Err(UStatus::fail_with_code(
+                        UCode::OK,
+                        format!("{}", occupied.len()),
+                    ));
+                }
+            }
+        }
+    }
+
+    #[derive(Clone, Debug)]
+    struct ListenerBaz;
+    impl UListener for ListenerBaz {
+        fn on_receive(&self, received: Result<UMessage, UStatus>) {
+            println!("Printing from ListenerBaz! received: {:?}", received);
+        }
+    }
+
+    #[derive(Clone, Debug)]
+    struct ListenerBar;
+    impl UListener for ListenerBar {
+        fn on_receive(&self, received: Result<UMessage, UStatus>) {
+            println!("Printing from ListenerBar! received: {:?}", received);
+        }
+    }
+
+    fn uuri_factory(uuri_index: u8) -> UUri {
+        match uuri_index {
+            1 => UUri {
+                authority: Some(UAuthority {
+                    name: Some("uuri_1".to_string()),
+                    number: Some(Number::Ip(vec![192, 168, 1, 200])),
+                    ..Default::default()
+                })
+                .into(),
+                ..Default::default()
+            },
+            _ => UUri::default(),
+        }
+    }
+
+    #[test]
+    fn test_register_and_receive() {
+        let up_client_foo = UPClientFoo::new();
+        let uuri_1 = uuri_factory(1);
+        let listener_baz = Arc::new(ListenerBaz);
+        let register_res =
+            task::block_on(up_client_foo.register_listener(uuri_1.clone(), &listener_baz));
+        assert_eq!(register_res, Err(UStatus::fail_with_code(UCode::OK, "1")));
+
+        let umessage = UMessage::default();
+        let check_on_receive_res = up_client_foo.check_on_receive(&uuri_1, &umessage);
+        assert_eq!(check_on_receive_res, Ok(()));
+    }
+
+    #[test]
+    fn test_register_and_unregister() {
+        let up_client_foo = UPClientFoo::new();
+        let uuri_1 = uuri_factory(1);
+        let listener_baz = Arc::new(ListenerBaz);
+        let register_res =
+            task::block_on(up_client_foo.register_listener(uuri_1.clone(), &listener_baz));
+        assert_eq!(register_res, Err(UStatus::fail_with_code(UCode::OK, "1")));
+
+        let umessage = UMessage::default();
+        let check_on_receive_res = up_client_foo.check_on_receive(&uuri_1, &umessage);
+        assert_eq!(check_on_receive_res, Ok(()));
+
+        let unregister_res =
+            task::block_on(up_client_foo.unregister_listener(uuri_1.clone(), &listener_baz));
+        assert_eq!(unregister_res, Err(UStatus::fail_with_code(UCode::OK, "0")));
+
+        let umessage = UMessage::default();
+        let check_on_receive_res = up_client_foo.check_on_receive(&uuri_1, &umessage);
+        assert!(check_on_receive_res.is_err());
+    }
+
+    #[test]
+    fn test_register_multiple_listeners_on_one_uuri() {
+        let up_client_foo = UPClientFoo::new();
+        let uuri_1 = uuri_factory(1);
+        let listener_baz = Arc::new(ListenerBaz);
+        let listener_bar = Arc::new(ListenerBar);
+
+        let register_res =
+            task::block_on(up_client_foo.register_listener(uuri_1.clone(), &listener_baz));
+        assert_eq!(register_res, Err(UStatus::fail_with_code(UCode::OK, "1")));
+
+        let register_res =
+            task::block_on(up_client_foo.register_listener(uuri_1.clone(), &listener_bar));
+        assert_eq!(register_res, Err(UStatus::fail_with_code(UCode::OK, "2")));
+
+        let umessage = UMessage::default();
+        let check_on_receive_res = up_client_foo.check_on_receive(&uuri_1, &umessage);
+        assert_eq!(check_on_receive_res, Ok(()));
+
+        let unregister_baz_res =
+            task::block_on(up_client_foo.unregister_listener(uuri_1.clone(), &listener_baz));
+        assert_eq!(
+            unregister_baz_res,
+            Err(UStatus::fail_with_code(UCode::OK, "1"))
+        );
+        let unregister_bar_res =
+            task::block_on(up_client_foo.unregister_listener(uuri_1.clone(), &listener_bar));
+        assert_eq!(
+            unregister_bar_res,
+            Err(UStatus::fail_with_code(UCode::OK, "0"))
+        );
+
+        let check_on_receive_res = up_client_foo.check_on_receive(&uuri_1, &umessage);
+        assert!(check_on_receive_res.is_err());
+    }
+
+    #[test]
+    fn test_if_no_listeners() {
+        let up_client_foo = UPClientFoo::new();
+        let uuri_1 = uuri_factory(1);
+
+        let umessage = UMessage::default();
+        let check_on_receive_res = up_client_foo.check_on_receive(&uuri_1, &umessage);
+
+        assert!(check_on_receive_res.is_err());
+    }
+
+    #[test]
+    fn test_register_multiple_same_listeners_on_one_uuri() {
+        let up_client_foo = UPClientFoo::new();
+        let uuri_1 = uuri_factory(1);
+
+        let listener_baz = Arc::new(ListenerBaz);
+        let register_res =
+            task::block_on(up_client_foo.register_listener(uuri_1.clone(), &listener_baz));
+        assert_eq!(register_res, Err(UStatus::fail_with_code(UCode::OK, "1")));
+
+        let register_res =
+            task::block_on(up_client_foo.register_listener(uuri_1.clone(), &listener_baz));
+        assert_eq!(register_res, Err(UStatus::fail_with_code(UCode::OK, "1")));
+
+        let listener_baz_completely_different = Arc::new(ListenerBaz);
+        let register_res = task::block_on(
+            up_client_foo.register_listener(uuri_1.clone(), &listener_baz_completely_different),
+        );
+        assert_eq!(register_res, Err(UStatus::fail_with_code(UCode::OK, "2")));
+
+        let umessage = UMessage::default();
+        let check_on_receive_res = up_client_foo.check_on_receive(&uuri_1, &umessage);
+        assert_eq!(check_on_receive_res, Ok(()));
+
+        let unregister_res = task::block_on(
+            up_client_foo.unregister_listener(uuri_1.clone(), &listener_baz_completely_different),
+        );
+        assert_eq!(unregister_res, Err(UStatus::fail_with_code(UCode::OK, "1")));
+
+        let unregister_baz_res =
+            task::block_on(up_client_foo.unregister_listener(uuri_1.clone(), &listener_baz));
+        assert_eq!(
+            unregister_baz_res,
+            Err(UStatus::fail_with_code(UCode::OK, "0"))
+        );
+
+        let check_on_receive_res = up_client_foo.check_on_receive(&uuri_1, &umessage);
+        assert!(check_on_receive_res.is_err());
+    }
 }
