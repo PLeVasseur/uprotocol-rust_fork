@@ -18,25 +18,100 @@ use std::sync::Arc;
 
 use crate::{UMessage, UStatus, UUri};
 
-/// `UListener` is the uP-L1 interface that provides a means to create listeners which are registered to `UTransport`
+/// `UListener` is the uP-L1 interface that provides a means to create listeners which are registered to [`UTransport`]
 ///
 /// Implementations of `UListener` contain the details for what should occur when a message is received
+///
 /// For more information, please refer to
 /// [uProtocol Specification](https://github.com/eclipse-uprotocol/uprotocol-spec/blob/main/up-l1/README.adoc).
+///
+/// # Examples
+///
+/// ## Simple example
+///
+/// ```
+/// use up_rust::{UListener, UMessage, UStatus};
+///
+/// use async_trait::async_trait;
+/// use std::sync::{Arc, Mutex};
+///
+/// #[derive(Clone)]
+/// struct FooListener {
+///     inner_foo: Arc<Mutex<String>>
+/// }
+///
+/// #[async_trait]
+/// impl UListener for FooListener {
+///     async fn on_receive(&self, msg: UMessage) {
+///         let mut inner_foo = self.inner_foo.lock().unwrap();
+///         if let Some(payload) = msg.payload.as_ref() {
+///             if let Some(length) = payload.length.as_ref() {
+///                 *inner_foo = format!("latest message length: {length}");
+///             }
+///         }
+///     }
+///
+///     async fn on_error(&self, err: UStatus) {
+///         println!("uh oh, we got an error: {err:?}");
+///     }
+/// }
+/// ```
+///
+/// ## Long-running function needed when message received
+///
+/// ```
+/// use up_rust::{UListener, UMessage, UStatus};
+///
+/// use async_trait::async_trait;
+/// use async_std::task;
+/// use std::sync::{Arc, Mutex};
+///
+/// #[derive(Clone)]
+/// struct LongTaskListener;
+///
+/// async fn send_to_jupiter(message_for_jupiter: UMessage) {
+///     // send a message to Jupiter
+///     println!("Fly me to the moon... {message_for_jupiter}");
+/// }
+///
+/// #[async_trait]
+/// impl UListener for LongTaskListener {
+///     async fn on_receive(&self, msg: UMessage) {
+///         task::spawn(send_to_jupiter(msg));
+///     }
+///
+///     async fn on_error(&self, err: UStatus) {
+///         println!("unable to send to jupiter :( {err:?}");
+///     }
+/// }
+/// ```
+#[async_trait]
 pub trait UListener: 'static + Send + Sync {
     /// Performs some action on receipt of a message
     ///
     /// # Parameters
     ///
     /// * `msg` - The message
-    fn on_receive(&self, msg: UMessage);
+    ///
+    /// # Note
+    ///
+    /// `on_receive()` is expected to return almost immediately. If it does not, it could potentially
+    /// block further message receipt. For long-running, synchronous, or blocking operations consider
+    /// passing off received data to a different async function to handle it and returning.
+    async fn on_receive(&self, msg: UMessage);
 
     /// Performs some action on receipt of an error
     ///
     /// # Parameters
     ///
     /// * `err` - The error as `UStatus`
-    fn on_error(&self, err: UStatus);
+    ///
+    /// # Note
+    ///
+    /// `on_error()` is expected to return almost immediately. If it does not, it could potentially
+    /// block further message receipt. For long-running, synchronous, or blocking operations consider
+    /// passing off received error to a different async function to handle it and returning.
+    async fn on_error(&self, err: UStatus);
 }
 
 /// [`UTransport`] is the uP-L1 interface that provides a common API for uE developers to send and receive messages.
@@ -207,7 +282,9 @@ mod tests {
                     }
 
                     for listener in occupied.iter() {
-                        listener.on_receive(umessage.clone());
+                        let task_listener = listener.clone();
+                        let task_umessage = umessage.clone();
+                        task::spawn(async move { task_listener.on_receive(task_umessage).await });
                     }
                 }
             }
@@ -274,24 +351,26 @@ mod tests {
 
     #[derive(Clone, Debug)]
     struct ListenerBaz;
+    #[async_trait]
     impl UListener for ListenerBaz {
-        fn on_receive(&self, msg: UMessage) {
+        async fn on_receive(&self, msg: UMessage) {
             println!("Printing msg from ListenerBaz! received: {:?}", msg);
         }
 
-        fn on_error(&self, err: UStatus) {
+        async fn on_error(&self, err: UStatus) {
             println!("Printing err from ListenerBaz! received {:?}", err)
         }
     }
 
     #[derive(Clone, Debug)]
     struct ListenerBar;
+    #[async_trait]
     impl UListener for ListenerBar {
-        fn on_receive(&self, msg: UMessage) {
+        async fn on_receive(&self, msg: UMessage) {
             println!("Printing msg from ListenerBar! received: {:?}", msg);
         }
 
-        fn on_error(&self, err: UStatus) {
+        async fn on_error(&self, err: UStatus) {
             println!("Printing err from ListenerBar! received: {:?}", err);
         }
     }
