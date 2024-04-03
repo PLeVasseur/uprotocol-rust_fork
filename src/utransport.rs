@@ -162,9 +162,11 @@ pub trait UTransport {
     /// # Errors
     ///
     /// Returns an error if the listener could not be registered.
-    async fn register_listener<T>(&self, topic: UUri, listener: Arc<T>) -> Result<(), UStatus>
-    where
-        T: UListener;
+    async fn register_listener(
+        &self,
+        topic: UUri,
+        listener: Arc<dyn UListener>,
+    ) -> Result<(), UStatus>;
 
     /// Unregisters a listener for a given topic.
     ///
@@ -178,9 +180,11 @@ pub trait UTransport {
     /// # Errors
     ///
     /// Returns an error if the listener could not be unregistered, for example if the given listener does not exist.
-    async fn unregister_listener<T>(&self, topic: UUri, listener: Arc<T>) -> Result<(), UStatus>
-    where
-        T: UListener;
+    async fn unregister_listener(
+        &self,
+        topic: UUri,
+        listener: Arc<dyn UListener>,
+    ) -> Result<(), UStatus>;
 }
 
 /// A wrapper type around UListener that can be used by `up-client-foo-rust` UPClient libraries
@@ -204,7 +208,7 @@ pub struct ComparableListener {
 }
 
 impl ComparableListener {
-    pub fn new<T: UListener>(listener: Arc<T>) -> Self {
+    pub fn new(listener: Arc<dyn UListener>) -> Self {
         let listener = listener.clone();
         Self { listener }
     }
@@ -303,10 +307,11 @@ mod tests {
             todo!()
         }
 
-        async fn register_listener<T>(&self, topic: UUri, listener: Arc<T>) -> Result<(), UStatus>
-        where
-            T: UListener,
-        {
+        async fn register_listener(
+            &self,
+            topic: UUri,
+            listener: Arc<dyn UListener>,
+        ) -> Result<(), UStatus> {
             let mut topics_listeners = self.listeners.lock().unwrap();
             let listeners = topics_listeners.entry(topic).or_default();
             let identified_listener = ComparableListener::new(listener);
@@ -321,10 +326,11 @@ mod tests {
             };
         }
 
-        async fn unregister_listener<T>(&self, topic: UUri, listener: Arc<T>) -> Result<(), UStatus>
-        where
-            T: UListener,
-        {
+        async fn unregister_listener(
+            &self,
+            topic: UUri,
+            listener: Arc<dyn UListener>,
+        ) -> Result<(), UStatus> {
             let mut topics_listeners = self.listeners.lock().unwrap();
             let listeners = topics_listeners.entry(topic.clone());
             return match listeners {
