@@ -101,8 +101,8 @@ pub trait UListener: 'static + Send + Sync {
     ///
     /// # Note for `UTransport` implementers
     ///
-    /// Because `on_receive()` is async you may choose to either `.await` it or spawn it onto its
-    /// own task
+    /// Because `on_receive()` is async you may choose to either `.await` it in the current context
+    /// or spawn it onto a new task and await there to allow current context to immediately continue.
     async fn on_receive(&self, msg: UMessage);
 
     /// Performs some action on receipt of an error
@@ -119,8 +119,8 @@ pub trait UListener: 'static + Send + Sync {
     ///
     /// # Note for `UTransport` implementers
     ///
-    /// Because `on_receive()` is async you may choose to either `.await` it or spawn it onto its
-    /// own task
+    /// Because `on_error()` is async you may choose to either `.await` it in the current context
+    /// or spawn it onto a new task and await there to allow current context to immediately continue.
     async fn on_error(&self, err: UStatus);
 }
 
