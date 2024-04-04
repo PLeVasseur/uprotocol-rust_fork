@@ -93,11 +93,16 @@ pub trait UListener: 'static + Send + Sync {
     ///
     /// * `msg` - The message
     ///
-    /// # Note
+    /// # Note for `UListener` implementers
     ///
     /// `on_receive()` is expected to return almost immediately. If it does not, it could potentially
-    /// block further message receipt. For long-running, synchronous, or blocking operations consider
-    /// passing off received data to a different async function to handle it and returning.
+    /// block further message receipt. For long-running operations consider passing off received
+    /// data to a different async function to handle it and returning.
+    ///
+    /// # Note for `UTransport` implementers
+    ///
+    /// Because `on_receive()` is async you may choose to either `.await` it or spawn it onto its
+    /// own task
     async fn on_receive(&self, msg: UMessage);
 
     /// Performs some action on receipt of an error
@@ -106,11 +111,16 @@ pub trait UListener: 'static + Send + Sync {
     ///
     /// * `err` - The error as `UStatus`
     ///
-    /// # Note
+    /// # Note for `UListener` implementers
     ///
     /// `on_error()` is expected to return almost immediately. If it does not, it could potentially
-    /// block further message receipt. For long-running, synchronous, or blocking operations consider
-    /// passing off received error to a different async function to handle it and returning.
+    /// block further message receipt. For long-running operations consider passing off received
+    /// error to a different async function to handle it and returning.
+    ///
+    /// # Note for `UTransport` implementers
+    ///
+    /// Because `on_receive()` is async you may choose to either `.await` it or spawn it onto its
+    /// own task
     async fn on_error(&self, err: UStatus);
 }
 
@@ -157,15 +167,86 @@ pub trait UTransport {
     /// # Arguments
     ///
     /// * `address` - The (resolved) address to register the listener for.
-    /// * `listener` - The listener to invoke.
+    /// * `listener` - The listener to invoke. Note that we do not take ownership to communicate
+    ///                that a caller should keep a copy to be able to call `unregister_listener()`
     ///
     /// # Errors
     ///
     /// Returns an error if the listener could not be registered.
+    ///
+    /// # Examples
+    ///
+    /// ## Registering a listener
+    ///
+    /// ```
+    /// use std::sync::Arc;
+    /// use up_rust::UListener;
+    /// # use up_rust::{UMessage, UStatus, UTransport, UUri};
+    /// # use async_trait::async_trait;
+    /// #
+    /// # pub struct MyTransport;
+    /// #
+    /// # impl MyTransport {
+    /// #     pub fn new()->Self {
+    /// #         Self
+    /// #     }
+    /// # }
+    /// #
+    /// # #[async_trait]
+    /// # impl UTransport for MyTransport {
+    /// #     async fn send(&self, _message: UMessage) -> Result<(), UStatus> {
+    /// #         todo!()
+    /// #     }
+    /// #
+    /// #     async fn receive(&self, _topic: UUri) -> Result<UMessage, UStatus> {
+    /// #         todo!()
+    /// #     }
+    /// #
+    /// #     async fn register_listener(&self, _topic: UUri, _listener: &Arc<dyn UListener>) -> Result<(), UStatus> {
+    /// #         Ok(())
+    /// #     }
+    /// #
+    /// #     async fn unregister_listener(&self, _topic: UUri, _listener: Arc<dyn UListener>) -> Result<(), UStatus> {
+    /// #         Ok(())
+    /// #     }
+    /// # }
+    /// #
+    /// # #[derive(Clone)]
+    /// # pub struct MyListener;
+    /// #
+    /// # impl MyListener {
+    /// #     pub fn new() -> Self {
+    /// #         Self
+    /// #     }
+    /// # }
+    /// #
+    /// # #[async_trait]
+    /// # impl UListener for MyListener {
+    /// #     async fn on_receive(&self, msg: UMessage) {
+    /// #         todo!()
+    /// #     }
+    /// #
+    /// #     async fn on_error(&self, err: UStatus) {
+    /// #         todo!()
+    /// #     }
+    /// # }
+    /// #
+    /// # let my_transport = MyTransport::new();
+    /// # let my_uuri = UUri::default();
+    ///
+    /// // hang onto this listener...
+    /// let my_listener: Arc<dyn UListener> = Arc::new(MyListener::new());
+    /// // ...send a clone through when registering...
+    /// let my_listener_for_transport = my_listener.clone();
+    /// let register_result = my_transport.register_listener(my_uuri.clone(), &my_listener_for_transport);
+    ///
+    /// // ...and use the original we hung onto when unregistering
+    /// let unregister_result = my_transport.unregister_listener(my_uuri, my_listener);
+    /// ```
     async fn register_listener(
         &self,
         topic: UUri,
-        listener: Arc<dyn UListener>,
+        listener: &Arc<dyn UListener>,
     ) -> Result<(), UStatus>;
 
     /// Unregisters a listener for a given topic.
@@ -175,7 +256,8 @@ pub trait UTransport {
     /// # Arguments
     ///
     /// * `topic` - Resolved topic uri where the listener was registered originally.
-    /// * `listener` - Identifier of the listener that should be unregistered.
+    /// * `listener` - Identifier of the listener that should be unregistered. Here we take ownership
+    ///                to communicate that this listener is now finished.
     ///
     /// # Errors
     ///
@@ -209,7 +291,6 @@ pub struct ComparableListener {
 
 impl ComparableListener {
     pub fn new(listener: Arc<dyn UListener>) -> Self {
-        let listener = listener.clone();
         Self { listener }
     }
 }
@@ -310,8 +391,9 @@ mod tests {
         async fn register_listener(
             &self,
             topic: UUri,
-            listener: Arc<dyn UListener>,
+            listener: &Arc<dyn UListener>,
         ) -> Result<(), UStatus> {
+            let listener = listener.clone();
             let mut topics_listeners = self.listeners.lock().unwrap();
             let listeners = topics_listeners.entry(topic).or_default();
             let identified_listener = ComparableListener::new(listener);
@@ -400,9 +482,9 @@ mod tests {
     fn test_register_and_receive() {
         let up_client_foo = UPClientFoo::new();
         let uuri_1 = uuri_factory(1);
-        let listener_baz = Arc::new(ListenerBaz);
+        let listener_baz: Arc<dyn UListener> = Arc::new(ListenerBaz);
         let register_res =
-            task::block_on(up_client_foo.register_listener(uuri_1.clone(), listener_baz));
+            task::block_on(up_client_foo.register_listener(uuri_1.clone(), &listener_baz));
         assert!(register_res.is_ok());
 
         let umessage = UMessage::default();
@@ -414,9 +496,9 @@ mod tests {
     fn test_register_and_unregister() {
         let up_client_foo = UPClientFoo::new();
         let uuri_1 = uuri_factory(1);
-        let listener_baz = Arc::new(ListenerBaz);
+        let listener_baz: Arc<dyn UListener> = Arc::new(ListenerBaz);
         let register_res =
-            task::block_on(up_client_foo.register_listener(uuri_1.clone(), listener_baz.clone()));
+            task::block_on(up_client_foo.register_listener(uuri_1.clone(), &listener_baz));
         assert!(register_res.is_ok());
 
         let umessage = UMessage::default();
@@ -424,7 +506,7 @@ mod tests {
         assert_eq!(check_on_receive_res, Ok(()));
 
         let unregister_res =
-            task::block_on(up_client_foo.unregister_listener(uuri_1.clone(), listener_baz.clone()));
+            task::block_on(up_client_foo.unregister_listener(uuri_1.clone(), listener_baz));
         assert!(unregister_res.is_ok());
 
         let umessage = UMessage::default();
@@ -436,15 +518,15 @@ mod tests {
     fn test_register_multiple_listeners_on_one_uuri() {
         let up_client_foo = UPClientFoo::new();
         let uuri_1 = uuri_factory(1);
-        let listener_baz = Arc::new(ListenerBaz);
-        let listener_bar = Arc::new(ListenerBar);
+        let listener_baz: Arc<dyn UListener> = Arc::new(ListenerBaz);
+        let listener_bar: Arc<dyn UListener> = Arc::new(ListenerBar);
 
         let register_res =
-            task::block_on(up_client_foo.register_listener(uuri_1.clone(), listener_baz.clone()));
+            task::block_on(up_client_foo.register_listener(uuri_1.clone(), &listener_baz));
         assert!(register_res.is_ok());
 
         let register_res =
-            task::block_on(up_client_foo.register_listener(uuri_1.clone(), listener_bar.clone()));
+            task::block_on(up_client_foo.register_listener(uuri_1.clone(), &listener_bar));
         assert!(register_res.is_ok());
 
         let umessage = UMessage::default();
@@ -452,10 +534,10 @@ mod tests {
         assert_eq!(check_on_receive_res, Ok(()));
 
         let unregister_baz_res =
-            task::block_on(up_client_foo.unregister_listener(uuri_1.clone(), listener_baz.clone()));
+            task::block_on(up_client_foo.unregister_listener(uuri_1.clone(), listener_baz));
         assert!(unregister_baz_res.is_ok());
         let unregister_bar_res =
-            task::block_on(up_client_foo.unregister_listener(uuri_1.clone(), listener_bar.clone()));
+            task::block_on(up_client_foo.unregister_listener(uuri_1.clone(), listener_bar));
         assert!(unregister_bar_res.is_ok());
 
         let check_on_receive_res = up_client_foo.check_on_receive(&uuri_1, &umessage);
@@ -478,19 +560,18 @@ mod tests {
         let up_client_foo = UPClientFoo::new();
         let uuri_1 = uuri_factory(1);
 
-        let listener_baz = Arc::new(ListenerBaz);
+        let listener_baz: Arc<dyn UListener> = Arc::new(ListenerBaz);
         let register_res =
-            task::block_on(up_client_foo.register_listener(uuri_1.clone(), listener_baz.clone()));
+            task::block_on(up_client_foo.register_listener(uuri_1.clone(), &listener_baz));
         assert!(register_res.is_ok());
 
         let register_res =
-            task::block_on(up_client_foo.register_listener(uuri_1.clone(), listener_baz.clone()));
+            task::block_on(up_client_foo.register_listener(uuri_1.clone(), &listener_baz));
         assert!(register_res.is_err());
 
-        let listener_baz_completely_different = Arc::new(ListenerBaz);
+        let listener_baz_completely_different: Arc<dyn UListener> = Arc::new(ListenerBaz);
         let register_res = task::block_on(
-            up_client_foo
-                .register_listener(uuri_1.clone(), listener_baz_completely_different.clone()),
+            up_client_foo.register_listener(uuri_1.clone(), &listener_baz_completely_different),
         );
         assert!(register_res.is_ok());
 
@@ -499,13 +580,12 @@ mod tests {
         assert_eq!(check_on_receive_res, Ok(()));
 
         let unregister_res = task::block_on(
-            up_client_foo
-                .unregister_listener(uuri_1.clone(), listener_baz_completely_different.clone()),
+            up_client_foo.unregister_listener(uuri_1.clone(), listener_baz_completely_different),
         );
         assert!(unregister_res.is_ok());
 
         let unregister_baz_res =
-            task::block_on(up_client_foo.unregister_listener(uuri_1.clone(), listener_baz.clone()));
+            task::block_on(up_client_foo.unregister_listener(uuri_1.clone(), listener_baz));
         assert!(unregister_baz_res.is_ok());
 
         let check_on_receive_res = up_client_foo.check_on_receive(&uuri_1, &umessage);
