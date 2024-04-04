@@ -202,7 +202,7 @@ pub trait UTransport {
     /// #         todo!()
     /// #     }
     /// #
-    /// #     async fn register_listener(&self, _topic: UUri, _listener: &Arc<dyn UListener>) -> Result<(), UStatus> {
+    /// #     async fn register_listener(&self, _topic: UUri, _listener: Arc<dyn UListener>) -> Result<(), UStatus> {
     /// #         Ok(())
     /// #     }
     /// #
@@ -238,7 +238,7 @@ pub trait UTransport {
     /// let my_listener: Arc<dyn UListener> = Arc::new(MyListener::new());
     /// // ...send a clone through when registering...
     /// let my_listener_for_transport = my_listener.clone();
-    /// let register_result = my_transport.register_listener(my_uuri.clone(), &my_listener_for_transport);
+    /// let register_result = my_transport.register_listener(my_uuri.clone(), my_listener_for_transport.clone());
     ///
     /// // ...and use the original we hung onto when unregistering
     /// let unregister_result = my_transport.unregister_listener(my_uuri, my_listener);
@@ -246,7 +246,7 @@ pub trait UTransport {
     async fn register_listener(
         &self,
         topic: UUri,
-        listener: &Arc<dyn UListener>,
+        listener: Arc<dyn UListener>,
     ) -> Result<(), UStatus>;
 
     /// Unregisters a listener for a given topic.
@@ -391,9 +391,8 @@ mod tests {
         async fn register_listener(
             &self,
             topic: UUri,
-            listener: &Arc<dyn UListener>,
+            listener: Arc<dyn UListener>,
         ) -> Result<(), UStatus> {
-            let listener = listener.clone();
             let mut topics_listeners = self.listeners.lock().unwrap();
             let listeners = topics_listeners.entry(topic).or_default();
             let identified_listener = ComparableListener::new(listener);
@@ -484,7 +483,7 @@ mod tests {
         let uuri_1 = uuri_factory(1);
         let listener_baz: Arc<dyn UListener> = Arc::new(ListenerBaz);
         let register_res =
-            task::block_on(up_client_foo.register_listener(uuri_1.clone(), &listener_baz));
+            task::block_on(up_client_foo.register_listener(uuri_1.clone(), listener_baz.clone()));
         assert!(register_res.is_ok());
 
         let umessage = UMessage::default();
@@ -498,7 +497,7 @@ mod tests {
         let uuri_1 = uuri_factory(1);
         let listener_baz: Arc<dyn UListener> = Arc::new(ListenerBaz);
         let register_res =
-            task::block_on(up_client_foo.register_listener(uuri_1.clone(), &listener_baz));
+            task::block_on(up_client_foo.register_listener(uuri_1.clone(), listener_baz.clone()));
         assert!(register_res.is_ok());
 
         let umessage = UMessage::default();
@@ -522,11 +521,11 @@ mod tests {
         let listener_bar: Arc<dyn UListener> = Arc::new(ListenerBar);
 
         let register_res =
-            task::block_on(up_client_foo.register_listener(uuri_1.clone(), &listener_baz));
+            task::block_on(up_client_foo.register_listener(uuri_1.clone(), listener_baz.clone()));
         assert!(register_res.is_ok());
 
         let register_res =
-            task::block_on(up_client_foo.register_listener(uuri_1.clone(), &listener_bar));
+            task::block_on(up_client_foo.register_listener(uuri_1.clone(), listener_bar.clone()));
         assert!(register_res.is_ok());
 
         let umessage = UMessage::default();
@@ -562,16 +561,17 @@ mod tests {
 
         let listener_baz: Arc<dyn UListener> = Arc::new(ListenerBaz);
         let register_res =
-            task::block_on(up_client_foo.register_listener(uuri_1.clone(), &listener_baz));
+            task::block_on(up_client_foo.register_listener(uuri_1.clone(), listener_baz.clone()));
         assert!(register_res.is_ok());
 
         let register_res =
-            task::block_on(up_client_foo.register_listener(uuri_1.clone(), &listener_baz));
+            task::block_on(up_client_foo.register_listener(uuri_1.clone(), listener_baz.clone()));
         assert!(register_res.is_err());
 
         let listener_baz_completely_different: Arc<dyn UListener> = Arc::new(ListenerBaz);
         let register_res = task::block_on(
-            up_client_foo.register_listener(uuri_1.clone(), &listener_baz_completely_different),
+            up_client_foo
+                .register_listener(uuri_1.clone(), listener_baz_completely_different.clone()),
         );
         assert!(register_res.is_ok());
 
