@@ -24,6 +24,7 @@ use protobuf::{well_known_types::any::Any, Message};
 #[derive(Debug)]
 pub enum UMessageError {
     AttributesValidationError(UAttributesError),
+    AnyDataSerializationError(protobuf::Error),
     DataSerializationError(protobuf::Error),
     PayloadError(String),
 }
@@ -37,6 +38,9 @@ impl std::fmt::Display for UMessageError {
             )),
             Self::DataSerializationError(e) => {
                 f.write_fmt(format_args!("Failed to serialize payload: {}", e))
+            }
+            Self::AnyDataSerializationError(e) => {
+                f.write_fmt(format_args!("Failed to any serialize payload: {}", e))
             }
             Self::PayloadError(e) => f.write_fmt(format_args!("UMessage payload error: {}", e)),
         }
@@ -91,7 +95,7 @@ impl UMessage {
                 }
                 UPayloadFormat::UPAYLOAD_FORMAT_PROTOBUF_WRAPPED_IN_ANY => {
                     return Any::parse_from_bytes(payload.as_ref())
-                        .map_err(UMessageError::DataSerializationError)
+                        .map_err(UMessageError::AnyDataSerializationError)
                         .and_then(|any| {
                             T::parse_from_bytes(any.value.as_slice())
                                 .map_err(UMessageError::DataSerializationError)
